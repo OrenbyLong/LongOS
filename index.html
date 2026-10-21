@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LongOS - Windows 10 Web Edition with Media Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap');
+        
+        * {
+            user-select: none;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        #desktop {
+            background-image: url('https://ia903107.us.archive.org/16/items/wallpapersprunkiorenxpinki/Sprunki%20GrayOC%20x%20Wendabow%20see%20board%20write%20LongOS.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .icon-size-large { width: 96px; height: 96px; font-size: 13px; }
+        .icon-size-large i { font-size: 40px !important; }
+        .icon-size-medium { width: 80px; height: 80px; font-size: 12px; }
+        .icon-size-medium i { font-size: 30px !important; }
+        .icon-size-small { width: 64px; height: 64px; font-size: 11px; }
+        .icon-size-small i { font-size: 22px !important; }
+
+        .desktop-icon-btn {
+            position: absolute;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, font-size 0.2s, width 0.2s, height 0.2s;
+            cursor: pointer;
+            user-select: none;
+            touch-action: none;
+            will-change: transform, opacity;
+        }
+        .desktop-icon-btn.dragging {
+            opacity: 0.8;
+            z-index: 1000 !important;
+            transition: none !important;
+        }
+
+        .app-window {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s ease, height 0.25s ease, top 0.25s ease, left 0.25s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+            will-change: transform, opacity;
+        }
+        .desktop-icon-btn.dragging {
+            opacity: 0.8;
+            z-index: 1000 !important;
+            transition: none !important;
+        }
+
+        .app-window {
+            transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.25s ease, width 0.25s ease, height 0.25s ease, top 0.25s ease, left 0.25s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+        }
+        /* Liquid Glass Modern Effect Styles */
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(20px) saturate(190%) contrast(105%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(190%) contrast(105%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.45), 
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+                        inset 0 -1px 0 0 rgba(255, 255, 255, 0.08) !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .liquid-glass::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.15), transparent 40%),
+                        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.12), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .liquid-glass-header {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+            backdrop-filter: blur(15px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .liquid-glass-button {
+            background: rgba(255, 255, 255, 0.12) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .liquid-glass-button:hover {
+            background: rgba(255, 255, 255, 0.25) !important;
+            border-color: rgba(255, 255, 255, 0.45) !important;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-1px);
+        }
+
+        .app-window.opening { animation: windowOpen 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
+        .app-window.minimizing { animation: windowMinimize 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .app-window.restoring { animation: windowRestore 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
+
+        @keyframes windowOpen {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes windowMinimize {
+            from { opacity: 1; transform: scale(1) translateY(0); }
+            to { opacity: 0; transform: scale(0.6) translateY(150px); }
+        }
+        @keyframes windowRestore {
+            from { opacity: 0; transform: scale(0.6) translateY(150px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .boot-zoom-out {
+            animation: bootZoomOut 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes bootZoomOut {
+            0% { opacity: 1; transform: scale(1); }
+            70% { opacity: 0.8; transform: scale(1.12); }
+            100% { opacity: 0; transform: scale(1.2); pointer-events: none; }
+        }
+
+        #taskbar { 
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease; 
+            will-change: transform, opacity;
+        }
+        .taskbar-down { transform: translateY(100%); opacity: 0; }
+
+        #desktop-icons {
+            opacity: 0;
+            transform: scale(0.96);
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+            will-change: transform, opacity;
+        }
+        #desktop-icons.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .win-spinner {
+            width: 48px;
+            height: 48px;
+            position: relative;
+        }
+        .win-spinner div {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            rotate: 0deg;
+            animation: winSpin 3.5s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+        }
+        .win-spinner div::after {
+            content: '';
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .win-spinner div:nth-child(1) { animation-delay: 0.15s; }
+        .win-spinner div:nth-child(2) { animation-delay: 0.30s; }
+        .win-spinner div:nth-child(3) { animation-delay: 0.45s; }
+        .win-spinner div:nth-child(4) { animation-delay: 0.60s; }
+        .win-spinner div:nth-child(5) { animation-delay: 0.75s; }
+
+        @keyframes winSpin {
+            0% { opacity: 0; transform: rotate(0deg); }
+            10% { opacity: 1; transform: rotate(120deg); }
+            70% { opacity: 1; transform: rotate(600deg); }
+            80% { opacity: 0; transform: rotate(720deg); }
+            100% { opacity: 0; transform: rotate(720deg); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            height: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+    </style>
+</head>
+<body class="text-white select-none overflow-hidden bg-black" oncontextmenu="return false;">
+
+    <div id="bios-screen" class="fixed inset-0 bg-black text-white font-mono z-[99999] flex items-center justify-center">
+        <div class="text-4xl md:text-6xl font-bold tracking-widest text-gray-100 flex items-center">
+            LongOS<span id="bios-cursor" class="animate-pulse text-emerald-400">-</span>
+        </div>
+    </div>
+
+    <div id="boot-screen" class="fixed inset-0 bg-black z-[9999] hidden flex flex-col items-center justify-center space-y-12 transition-all">
+        <div class="grid grid-cols-2 gap-1.5 w-24 h-24 transform -skew-x-6">
+            <div class="bg-[#00adef]"></div>
+            <div class="bg-[#00adef]"></div>
+            <div class="bg-[#00adef]"></div>
+            <div class="bg-[#00adef]"></div>
+        </div>
+        <div class="win-spinner">
+            <div></div><div></div><div></div><div></div><div></div>
+        </div>
+    </div>
+
+    <div id="shutdown-screen" class="fixed inset-0 bg-black/5 backdrop-blur-[10px] z-[99990] hidden flex flex-col items-center justify-center text-white transition-opacity duration-500 opacity-0">
+        <div class="win-spinner mb-6">
+            <div></div><div></div><div></div><div></div><div></div>
+        </div>
+        <h1 id="shutdown-text" class="text-2xl md:text-3xl font-light">Shutting down...</h1>
+    </div>
+
+    <div id="safe-turnoff-screen" class="fixed inset-0 bg-black z-[99995] hidden flex flex-col items-center justify-center text-amber-500 font-mono p-4 text-center">
+        <h1 class="text-2xl md:text-4xl font-bold mb-4">It is now safe to turn off your web browser.</h1>
+        <button onclick="powerOn()" class="mt-8 px-6 py-2 border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black rounded transition">
+            <i class="fa-solid fa-power-off mr-2"></i>Power On LongOS
+        </button>
+    </div>
+
+    <div id="desktop" class="relative w-screen h-screen bg-black overflow-hidden flex flex-col justify-between">
+        <div id="desktop-icons" class="p-3 grid grid-flow-col auto-cols-max grid-rows-6 gap-4 z-10 transition-opacity duration-300"></div>
+
+        <!-- Notification Toast Popup -->
+        <div id="welcome-popup" class="fixed bottom-12 right-6 liquid-glass rounded-2xl p-4 w-80 md:w-96 z-[9500] hidden transform translate-y-10 opacity-0 transition-all duration-300">
+            <div class="flex justify-between items-start mb-2 relative z-10">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-500/80 backdrop-blur-md flex items-center justify-center font-bold text-white text-xs shadow-lg">L</div>
+                    <div>
+                        <h4 class="font-bold text-sm text-white drop-shadow">Chào mừng đến với LongOS!</h4>
+                        <span class="text-[10px] text-gray-300">Vừa xong • Windows 10 Web Edition</span>
+                    </div>
+                </div>
+                <button onclick="closeWelcomePopup()" class="text-gray-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-gray-200 mb-3 relative z-10">Hệ điều hành web đã sẵn sàng với giao diện Liquid Glass lỏng trong suốt cực đỉnh!</p>
+            <div class="flex gap-2 relative z-10">
+                <button onclick="openApp('guide'); closeWelcomePopup();" class="flex-1 py-1.5 liquid-glass-button rounded-lg text-xs font-semibold text-white transition">
+                    <i class="fa-solid fa-book-open mr-1"></i> Hướng dẫn sử dụng
+                </button>
+                <button onclick="closeWelcomePopup()" class="px-3 py-1.5 liquid-glass-button rounded-lg text-xs text-gray-200 transition">Đóng</button>
+            </div>
+        </div>
+
+        <div id="context-menu" class="fixed hidden liquid-glass text-white border border-white/20 rounded-xl shadow-2xl py-1.5 w-52 text-xs z-[8000]">
+            <div class="relative group">
+                <button class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between">
+                    <span class="flex items-center gap-3"><i class="fa-solid fa-border-all text-blue-400"></i> View</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-gray-400"></i>
+                </button>
+                <div class="absolute left-full top-0 hidden group-hover:block bg-[#202020]/95 backdrop-blur-md border border-white/10 rounded-lg shadow-2xl py-1.5 w-40 text-xs ml-0.5">
+                    <button onclick="setIconSize('large')" class="w-full text-left px-4 py-1.5 hover:bg-white/10 flex items-center justify-between">
+                        <span>Large icons</span>
+                        <i id="check-icon-large" class="fa-solid fa-check text-emerald-400 hidden"></i>
+                    </button>
+                    <button onclick="setIconSize('medium')" class="w-full text-left px-4 py-1.5 hover:bg-white/10 flex items-center justify-between">
+                        <span>Medium icons</span>
+                        <i id="check-icon-medium" class="fa-solid fa-check text-emerald-400"></i>
+                    </button>
+                    <button onclick="setIconSize('small')" class="w-full text-left px-4 py-1.5 hover:bg-white/10 flex items-center justify-between">
+                        <span>Small icons</span>
+                        <i id="check-icon-small" class="fa-solid fa-check text-emerald-400 hidden"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="border-t border-white/10 my-1"></div>
+            <button onclick="refreshDesktop()" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center gap-3">
+                <i class="fa-solid fa-rotate-right text-blue-400"></i> Auto Arrange Icons
+            </button>
+            <div class="border-t border-white/10 my-1"></div>
+            <button onclick="openApp('sysinfo')" class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center gap-3">
+                <i class="fa-solid fa-circle-info text-cyan-400"></i> System Properties
+            </button>
+        </div>
+
+        <div id="windows-container" class="absolute inset-0 pb-10 pointer-events-none z-20"></div>
+
+        <div id="task-view-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[7000] hidden p-8 flex flex-col">
+            <div class="flex justify-between items-center text-white mb-6">
+                <h2 class="text-2xl font-light"><i class="fa-solid fa-table-cells-large mr-3"></i>Task View - Active Windows</h2>
+                <button onclick="toggleTaskView()" class="text-xl hover:text-red-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="task-view-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-y-auto p-2"></div>
+        </div>
+
+        <div id="start-menu" class="fixed bottom-12 left-2 w-80 md:w-96 h-[480px] liquid-glass rounded-2xl shadow-2xl z-[8000] hidden flex flex-col justify-between transition-all">
+            <div class="p-4 border-b border-white/20 flex items-center gap-3 relative z-10">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-lg">L</div>
+                <div>
+                    <div class="font-semibold text-sm">LongOS Administrator</div>
+                    <div class="text-xs text-blue-200">Windows 10 Liquid Glass Edition</div>
+                </div>
+            </div>
+
+            <div class="p-2 overflow-y-auto flex-1 space-y-1 relative z-10">
+                <div class="text-[10px] font-bold text-blue-200/80 px-3 py-1 tracking-wider uppercase">Applications</div>
+                <button onclick="openApp('mediaplayer')" class="w-full flex items-center gap-3 px-3 py-2 liquid-glass-button rounded-lg text-xs transition">
+                    <i class="fa-solid fa-compact-disc text-purple-300 text-base"></i> <span class="font-semibold text-purple-100">Media Player</span>
+                </button>
+                <button onclick="openApp('guide')" class="w-full flex items-center gap-3 px-3 py-2 liquid-glass-button rounded-lg text-xs transition">
+                    <i class="fa-solid fa-book-open text-blue-300 text-base"></i> <span class="font-semibold text-blue-100">Giới thiệu & Hướng dẫn</span>
+                </button>
+                <button onclick="openApp('calc')" class="w-full flex items-center gap-3 px-3 py-2 liquid-glass-button rounded-lg text-xs transition">
+                    <i class="fa-solid fa-calculator text-blue-300 text-base"></i> Calculator
+                </button>
+                <button onclick="openApp('cmd')" class="w-full flex items-center gap-3 px-3 py-2 liquid-glass-button rounded-lg text-xs transition">
+                    <i class="fa-solid fa-terminal text-gray-200 text-base"></i> Command Prompt
+                </button>
+                <button onclick="openApp('hwtest')" class="w-full flex items-center gap-3 px-3 py-2 liquid-glass-button rounded-lg text-xs transition">
+                    <i class="fa-solid fa-microchip text-red-300 text-base"></i> Hardware Diagnostics
+                </button>
+                <button onclick="openApp('wheel')" class="w-full flex items-center gap-3 px-3 py-2 liquid-glass-button rounded-lg text-xs transition">
+                    <i class="fa-solid fa-dharmachakra text-emerald-300 text-base"></i> Lucky Wheel
+                </button>
+                <button onclick="openApp('taskmgr')" class="w-full flex items-center gap-3 px-3 py-2 liquid-glass-button rounded-lg text-xs transition">
+                    <i class="fa-solid fa-chart-line text-purple-300 text-base"></i> Task Manager
+                </button>
+            </div>
+
+            <div class="p-3 bg-black/20 border-t border-white/20 flex justify-between items-center relative z-10">
+                <span class="text-xs text-gray-300">LongOS 2026 Liquid Edition</span>
+                <div class="flex gap-2">
+                    <button onclick="triggerReboot(event)" title="Restart System" class="w-8 h-8 rounded-lg liquid-glass-button flex items-center justify-center text-sm transition">
+                        <i class="fa-solid fa-rotate-right text-amber-300"></i>
+                    </button>
+                    <button onclick="triggerShutdown(event)" title="Shut Down" class="w-8 h-8 rounded-lg liquid-glass-button flex items-center justify-center text-sm transition hover:bg-red-500/40">
+                        <i class="fa-solid fa-power-off text-red-400"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="taskbar" class="w-full h-10 liquid-glass border-t border-white/20 flex items-center justify-between px-2 z-[8500] relative">
+            <div class="flex items-center h-full gap-1">
+                <button id="start-btn" onclick="toggleStartMenu(event)" class="h-8 px-3 rounded-lg liquid-glass-button flex items-center justify-center transition">
+                    <i class="fa-brands fa-windows text-blue-300 text-base pointer-events-none drop-shadow"></i>
+                </button>
+
+                <div class="relative h-8 flex items-center">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 text-xs text-gray-300 pointer-events-none"></i>
+                    <input type="text" id="taskbar-search" onkeyup="handleSearch(event)" placeholder="Type here to search..." 
+                           class="bg-white/10 text-xs text-white pl-8 pr-3 py-1 rounded-lg w-36 focus:w-52 transition-all outline-none border border-white/20 focus:border-blue-400/80 backdrop-blur-md">
+                </div>
+
+                <button onclick="toggleTaskView()" title="Task View" class="h-8 px-2.5 rounded-lg liquid-glass-button flex items-center justify-center text-gray-200 transition">
+                    <i class="fa-solid fa-table-cells-large text-sm"></i>
+                </button>
+
+                <div class="h-4 w-[1px] bg-white/20 mx-1"></div>
+
+                <div id="taskbar-apps" class="flex items-center h-full gap-1"></div>
+            </div>
+
+            <div class="flex items-center h-full text-xs gap-3 pr-2 text-gray-200">
+                <button onclick="playNotificationSound()" title="Test Notification Sound" class="hover:text-white px-1"><i class="fa-solid fa-bell text-blue-300"></i></button>
+                <i class="fa-solid fa-volume-high"></i>
+                <i class="fa-solid fa-wifi text-xs"></i>
+                <div class="flex items-center gap-1">
+                    <i id="battery-icon" class="fa-solid fa-battery-full text-emerald-300"></i>
+                    <span id="battery-text" class="text-[11px]">100%</span>
+                </div>
+                <div class="text-right leading-tight">
+                    <div id="clock-time" class="font-semibold text-white drop-shadow-sm">00:00</div>
+                    <div id="clock-date" class="text-[10px] text-gray-300">01/01/2026</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEDIA PLAYER TEMPLATE -->
+    <template id="tpl-mediaplayer">
+        <div class="h-full bg-[#121212] text-white flex flex-col justify-between text-xs overflow-hidden select-none">
+            <!-- Screen Header Controls -->
+            <div class="bg-[#1e1e1e] px-3 py-2 border-b border-white/10 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <input type="file" id="media-file-input" class="hidden" accept="audio/*,video/*" onchange="handleMediaImport(event)">
+                    <button onclick="document.getElementById('media-file-input').click()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 rounded text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-folder-open"></i> Mở tệp từ máy
+                    </button>
+                    <div class="relative group">
+                        <button class="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs text-gray-300 flex items-center gap-1">
+                            <span>Nhạc mẫu</span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </button>
+                        <div class="absolute left-0 top-full mt-1 hidden group-hover:block bg-[#252525] border border-white/10 rounded shadow-xl py-1 w-44 z-50">
+                            <button onclick="loadSampleMedia('synth')" class="w-full text-left px-3 py-1.5 hover:bg-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-music text-purple-400"></i> Synthwave Chill
+                            </button>
+                            <button onclick="loadSampleMedia('lofi')" class="w-full text-left px-3 py-1.5 hover:bg-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-drum text-emerald-400"></i> Lofi Beats
+                            </button>
+                            <button onclick="loadSampleMedia('sample_video')" class="w-full text-left px-3 py-1.5 hover:bg-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-film text-blue-400"></i> Sample Video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="media-track-title" class="text-xs font-medium text-gray-300 truncate max-w-[200px] text-right">
+                    Chưa chọn tệp
+                </div>
+            </div>
+
+            <!-- Media Content Display (Video / Equalizer Canvas) -->
+            <div class="flex-1 bg-black relative flex items-center justify-center overflow-hidden group">
+                <video id="media-video" class="w-full h-full object-contain hidden" ontimeupdate="updateMediaProgress()" onended="onMediaEnded()"></video>
+                <audio id="media-audio" class="hidden" ontimeupdate="updateMediaProgress()" onended="onMediaEnded()"></audio>
+
+                <!-- Audio Equalizer Visualizer Screen -->
+                <div id="audio-visualizer-container" class="flex flex-col items-center justify-center space-y-4">
+                    <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-2xl animate-pulse">
+                        <i id="visualizer-icon" class="fa-solid fa-music text-5xl text-white"></i>
+                    </div>
+                    <canvas id="equalizer-canvas" width="320" height="60" class="w-80 h-16"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom Media Player Controls -->
+            <div class="bg-[#1a1a1a] p-3 border-t border-white/10 flex flex-col gap-2">
+                <!-- Seek Progress Bar -->
+                <div class="flex items-center gap-2 text-[11px] text-gray-400 font-mono">
+                    <span id="media-current-time">00:00</span>
+                    <input type="range" id="media-seek-bar" value="0" min="0" max="100" class="flex-1 cursor-pointer" oninput="seekMedia(this.value)">
+                    <span id="media-duration">00:00</span>
+                </div>
+
+                <!-- Controls Buttons -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleMuteMedia()" class="text-gray-300 hover:text-white text-base px-1">
+                            <i id="media-volume-icon" class="fa-solid fa-volume-high"></i>
+                        </button>
+                        <input type="range" id="media-volume-bar" value="100" min="0" max="100" class="w-20 cursor-pointer" oninput="setMediaVolume(this.value)">
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button onclick="rewindMedia(5)" class="text-gray-300 hover:text-white text-base">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <button id="media-play-btn" onclick="togglePlayMedia()" class="w-9 h-9 bg-purple-600 hover:bg-purple-500 rounded-full flex items-center justify-center text-white text-base transition shadow-lg">
+                            <i class="fa-solid fa-play ml-0.5"></i>
+                        </button>
+                        <button onclick="forwardMedia(5)" class="text-gray-300 hover:text-white text-base">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleMediaFullscreen()" class="text-gray-400 hover:text-white text-sm px-1" title="Toàn màn hình">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-guide">
+        <div class="h-full bg-[#181818] text-white flex flex-col text-xs overflow-y-auto p-4 space-y-4">
+            <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center text-2xl font-bold flex-shrink-0">
+                    <i class="fa-solid fa-book-open text-white"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold">Giới thiệu & Hướng dẫn sử dụng toàn diện LongOS</h2>
+                    <p class="text-gray-400">Khám phá chi tiết hệ điều hành Windows 10 Web Edition, tính năng nâng cao và phím tắt.</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-[#222] p-3.5 rounded-lg border border-white/10 space-y-2">
+                    <h3 class="text-sm font-bold text-blue-400 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info"></i> Tổng quan về LongOS 10
+                    </h3>
+                    <p class="text-gray-300 text-[11px] leading-relaxed">
+                        <strong>LongOS</strong> là một Hệ điều hành mô phỏng trên nền tảng Web tuyệt đẹp, mô phỏng giao diện Windows 10 Pro. Hệ thống tích hợp sẵn các công cụ tiện ích mạnh mẽ như Trình phát đa phương tiện (Media Player), Máy tính (Calculator), Command Prompt, Lucky Wheel, Task Manager và Hardware Diagnostics.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <h3 class="text-sm font-bold text-purple-400 flex items-center gap-2">
+                        <i class="fa-solid fa-compact-disc"></i> Trình phát Media Player
+                    </h3>
+                    <p class="text-gray-300 text-[11px] bg-[#222] p-3 rounded-lg border border-white/10">
+                        Cho phép mở và xem trực tiếp các định dạng video/âm thanh cá nhân từ thiết bị của bạn hoặc lựa chọn các bản nhạc mẫu trực quan với sóng âm Equalizer sinh động.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-calc">
+        <div class="h-full bg-[#202020] text-white flex flex-col p-2 text-sm select-none">
+            <div id="calc-screen" class="bg-[#111] h-16 rounded mb-2 flex items-center justify-end px-4 text-2xl font-mono text-emerald-400 border border-white/10 overflow-hidden">0</div>
+            <div class="grid grid-cols-4 gap-1 flex-1 text-base">
+                <button onclick="calcInput('C')" class="bg-red-600 hover:bg-red-500 rounded font-bold">C</button>
+                <button onclick="calcInput('CE')" class="bg-gray-700 hover:bg-gray-600 rounded">CE</button>
+                <button onclick="calcInput('back')" class="bg-gray-700 hover:bg-gray-600 rounded">⌫</button>
+                <button onclick="calcInput('/')" class="bg-blue-600 hover:bg-blue-500 rounded">÷</button>
+
+                <button onclick="calcInput('7')" class="bg-gray-800 hover:bg-gray-700 rounded">7</button>
+                <button onclick="calcInput('8')" class="bg-gray-800 hover:bg-gray-700 rounded">8</button>
+                <button onclick="calcInput('9')" class="bg-gray-800 hover:bg-gray-700 rounded">9</button>
+                <button onclick="calcInput('*')" class="bg-blue-600 hover:bg-blue-500 rounded">×</button>
+
+                <button onclick="calcInput('4')" class="bg-gray-800 hover:bg-gray-700 rounded">4</button>
+                <button onclick="calcInput('5')" class="bg-gray-800 hover:bg-gray-700 rounded">5</button>
+                <button onclick="calcInput('6')" class="bg-gray-800 hover:bg-gray-700 rounded">6</button>
+                <button onclick="calcInput('-')" class="bg-blue-600 hover:bg-blue-500 rounded">-</button>
+
+                <button onclick="calcInput('1')" class="bg-gray-800 hover:bg-gray-700 rounded">1</button>
+                <button onclick="calcInput('2')" class="bg-gray-800 hover:bg-gray-700 rounded">2</button>
+                <button onclick="calcInput('3')" class="bg-gray-800 hover:bg-gray-700 rounded">3</button>
+                <button onclick="calcInput('+')" class="bg-blue-600 hover:bg-blue-500 rounded">+</button>
+
+                <button onclick="calcInput('0')" class="col-span-2 bg-gray-800 hover:bg-gray-700 rounded">0</button>
+                <button onclick="calcInput('.')" class="bg-gray-800 hover:bg-gray-700 rounded">.</button>
+                <button onclick="calcInput('=')" class="bg-emerald-600 hover:bg-emerald-500 rounded font-bold">=</button>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-cmd">
+        <div id="cmd-container" onclick="focusCmdInput()" class="h-full bg-black text-green-400 font-mono text-xs p-3 overflow-y-auto flex flex-col">
+            <div class="mb-2">LongOS Command Prompt [Version 10.0.19045.3803]<br>(c) LongOS Corporation. All rights reserved. Type "help" for commands.</div>
+            <div id="cmd-output"></div>
+            <div class="flex items-center">
+                <span>C:\Users\Administrator&gt;&nbsp;</span>
+                <input type="text" id="cmd-input" onkeydown="handleCmd(event)" class="bg-transparent border-none outline-none text-green-400 flex-1 font-mono">
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-wheel">
+        <div class="h-full bg-[#1a1a1a] text-white p-3 flex flex-col md:flex-row gap-3 text-xs">
+            <div class="flex-1 flex flex-col items-center justify-center bg-[#111] p-3 rounded-lg border border-white/10 relative overflow-hidden">
+                <div class="relative flex flex-col items-center justify-center mt-2 mb-2">
+                    <div class="z-20 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[22px] border-t-red-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] -mb-2.5"></div>
+                    <canvas id="wheel-canvas" width="360" height="360" class="w-[260px] h-[260px] md:w-[300px] md:h-[300px] max-w-full drop-shadow-2xl"></canvas>
+                </div>
+                <button id="spin-btn" onclick="spinWheel()" class="mt-2 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-black font-black text-sm rounded-full shadow-lg transition transform active:scale-95">
+                    QUAY NGAY!
+                </button>
+            </div>
+            <div class="w-full md:w-56 flex flex-col gap-2 bg-[#202020] p-3 rounded-lg border border-white/10">
+                <label class="font-bold text-gray-300">Danh sách lựa chọn:</label>
+                <textarea id="wheel-input" oninput="drawWheel()" class="h-32 bg-[#252525] border border-white/10 rounded p-2 text-white outline-none focus:border-blue-500 text-xs resize-none">Thưởng 100k
+May mắn
+Chơi lại
+Sticker
+Mất lượt
+Đổi chỗ</textarea>
+                <div class="font-bold text-gray-300 mt-1">Kết quả quay:</div>
+                <div id="wheel-result" class="flex-1 min-h-[70px] bg-[#111] border-2 border-amber-500/50 rounded-lg flex items-center justify-center font-bold text-center p-2 shadow-inner">
+                    <span class="text-gray-400 text-xs">Chưa quay</span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-taskmgr">
+        <div class="h-full bg-[#1e1e1e] text-white flex flex-col text-xs">
+            <div class="flex border-b border-white/10 bg-[#252525]">
+                <button id="tab-btn-processes" onclick="switchTaskTab('processes')" class="px-4 py-2 border-b-2 border-blue-500 font-semibold bg-white/5">Processes</button>
+                <button id="tab-btn-performance" onclick="switchTaskTab('performance')" class="px-4 py-2 border-b-2 border-transparent hover:bg-white/5">Performance</button>
+            </div>
+            <div id="task-tab-processes" class="p-3 flex-1 overflow-y-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-white/10 text-gray-400">
+                            <th class="pb-2">Name</th>
+                            <th class="pb-2">Status</th>
+                            <th class="pb-2">Memory</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-white/5">
+                            <td class="py-2 flex items-center gap-2"><i class="fa-solid fa-window-maximize text-blue-400"></i> LongOS Core System</td>
+                            <td class="text-emerald-400">Running</td>
+                            <td>128 MB</td>
+                        </tr>
+                        <tr class="border-b border-white/5">
+                            <td class="py-2 flex items-center gap-2"><i class="fa-solid fa-compact-disc text-purple-400"></i> Media Player</td>
+                            <td class="text-emerald-400">Active</td>
+                            <td>48 MB</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="task-tab-performance" class="p-4 hidden flex-1 space-y-3">
+                <div class="bg-[#252525] p-3 rounded border border-white/10">
+                    <div class="font-bold mb-1 text-blue-400">CPU Threads</div>
+                    <div id="perf-cpu-threads" class="text-lg font-mono">8 Threads</div>
+                </div>
+                <div class="bg-[#252525] p-3 rounded border border-white/10">
+                    <div class="font-bold mb-1 text-purple-400">JS Memory Heap</div>
+                    <div id="perf-mem-usage" class="text-lg font-mono">48 MB</div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-sysinfo">
+        <div class="h-full bg-[#181818] text-white p-4 text-xs space-y-4 overflow-y-auto">
+            <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                <i class="fa-brands fa-windows text-4xl text-blue-500"></i>
+                <div>
+                    <h2 class="text-base font-bold">LongOS 10 Web Edition</h2>
+                    <p class="text-gray-400">Version 22H2 (OS Build 19045.3803)</p>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <div><span class="text-gray-400 w-32 inline-block">System Processor:</span> <span id="sys-cpu" class="font-mono text-emerald-400">8 Cores / Threads</span></div>
+                <div><span class="text-gray-400 w-32 inline-block">Installed RAM:</span> <span id="sys-ram" class="font-mono text-emerald-400">8 GB</span></div>
+                <div><span class="text-gray-400 w-32 inline-block">Display Resolution:</span> <span id="sys-screen" class="font-mono text-emerald-400">1920 x 1080</span></div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-hwtest">
+        <div class="h-full bg-[#181818] text-white flex flex-col text-xs select-none">
+            <div class="flex border-b border-white/10 bg-[#222]">
+                <button onclick="switchHwTab('keyboard')" id="hwtab-btn-keyboard" class="px-4 py-2.5 border-b-2 border-blue-500 font-semibold bg-white/5 flex items-center gap-2">
+                    <i class="fa-solid fa-keyboard text-amber-400"></i> Bàn phím
+                </button>
+                <button onclick="switchHwTab('mouse')" id="hwtab-btn-mouse" class="px-4 py-2.5 border-b-2 border-transparent hover:bg-white/5 flex items-center gap-2">
+                    <i class="fa-solid fa-mouse text-blue-400"></i> Chuột
+                </button>
+                <button onclick="switchHwTab('audio')" id="hwtab-btn-audio" class="px-4 py-2.5 border-b-2 border-transparent hover:bg-white/5 flex items-center gap-2">
+                    <i class="fa-solid fa-volume-high text-emerald-400"></i> Loa / Âm thanh
+                </button>
+                <button onclick="switchHwTab('display')" id="hwtab-btn-display" class="px-4 py-2.5 border-b-2 border-transparent hover:bg-white/5 flex items-center gap-2">
+                    <i class="fa-solid fa-desktop text-purple-400"></i> Màn hình
+                </button>
+            </div>
+
+            <div id="hwtab-keyboard" class="p-4 flex-1 overflow-y-auto flex flex-col gap-3">
+                <div class="flex justify-between items-center bg-[#222] p-2.5 rounded border border-white/10">
+                    <div>
+                        <span class="text-gray-300">Phím vừa bấm: </span>
+                        <span id="key-last-pressed" class="font-bold text-amber-400 font-mono text-sm">None</span>
+                    </div>
+                    <button onclick="resetKeyTest()" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-white flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-rotate-left"></i> Đặt lại
+                    </button>
+                </div>
+                <div class="bg-[#111] p-3 rounded-lg border border-white/10 overflow-x-auto">
+                    <div id="virtual-keyboard" class="inline-grid gap-1 font-mono text-[11px] min-w-[700px]"></div>
+                </div>
+            </div>
+
+            <div id="hwtab-mouse" class="p-4 hidden flex-1 overflow-y-auto flex flex-col gap-4">
+                <div class="grid grid-cols-3 gap-3">
+                    <div id="mouse-btn-left" class="h-20 bg-[#252525] border border-white/10 rounded-lg flex flex-col items-center justify-center transition">
+                        <i class="fa-solid fa-computer-mouse text-xl mb-1"></i>
+                        <span>Chuột trái (Left)</span>
+                    </div>
+                    <div id="mouse-btn-middle" class="h-20 bg-[#252525] border border-white/10 rounded-lg flex flex-col items-center justify-center transition">
+                        <i class="fa-solid fa-sliders text-xl mb-1"></i>
+                        <span>Nút giữa (Middle)</span>
+                    </div>
+                    <div id="mouse-btn-right" class="h-20 bg-[#252525] border border-white/10 rounded-lg flex flex-col items-center justify-center transition">
+                        <i class="fa-solid fa-computer-mouse text-xl mb-1 scale-x-[-1]"></i>
+                        <span>Chuột phải (Right)</span>
+                    </div>
+                </div>
+                <div id="mouse-draw-area" class="flex-1 min-h-[160px] bg-[#111] border border-dashed border-gray-600 rounded-lg flex items-center justify-center text-gray-500 cursor-crosshair">
+                    Di chuyển chuột & Click vào vùng này để thử nghiệm độ nhạy
+                </div>
+            </div>
+
+            <div id="hwtab-audio" class="p-4 hidden flex-1 overflow-y-auto flex flex-col gap-4">
+                <div class="bg-[#222] p-4 rounded-lg border border-white/10 space-y-4">
+                    <h3 class="font-bold text-sm text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-headphones"></i> Kiểm tra loa Trái / Phải
+                    </h3>
+                    <div class="flex gap-3">
+                        <button onclick="playStereoTest('left')" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 rounded font-semibold flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-high"></i> Thử Loa TRÁI
+                        </button>
+                        <button onclick="playStereoTest('right')" class="flex-1 py-3 bg-purple-600 hover:bg-purple-500 rounded font-semibold flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-high"></i> Thử Loa PHẢI
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="hwtab-display" class="p-4 hidden flex-1 overflow-y-auto flex flex-col gap-4">
+                <div class="bg-[#222] p-4 rounded-lg border border-white/10 space-y-3">
+                    <h3 class="font-bold text-sm text-purple-400 flex items-center gap-2">
+                        <i class="fa-solid fa-expand"></i> Kiểm tra điểm chết màn hình
+                    </h3>
+                    <button onclick="startDeadPixelTest()" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 rounded font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> Bắt đầu kiểm tra điểm chết
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <div id="dead-pixel-overlay" class="fixed inset-0 z-[99999] hidden cursor-pointer flex items-center justify-center text-white/50 text-sm font-mono">
+        Nhấp chuột hoặc ấn phím bất kỳ để chuyển màu (Ấn ESC để thoát)
+    </div>
+
+    <script>
+        const ALL_APPS = {
+            mediaplayer: { title: 'Media Player', icon: 'fa-compact-disc text-purple-400', w: 640, h: 420, isPinned: true },
+            guide: { title: 'Giới thiệu & Hướng dẫn', icon: 'fa-book-open text-blue-400', w: 620, h: 440, isPinned: true },
+            calc: { title: 'Calculator', icon: 'fa-calculator text-blue-400', w: 320, h: 420, isPinned: true },
+            cmd: { title: 'Command Prompt', icon: 'fa-terminal text-gray-300', w: 580, h: 360, isPinned: true },
+            hwtest: { title: 'Hardware Diagnostics', icon: 'fa-microchip text-red-400', w: 750, h: 500, isPinned: true },
+            wheel: { title: 'Lucky Wheel', icon: 'fa-dharmachakra text-emerald-400', w: 580, h: 380, isPinned: true },
+            taskmgr: { title: 'Task Manager', icon: 'fa-chart-line text-purple-400', w: 520, h: 380, isPinned: true },
+            sysinfo: { title: 'Windows Info', icon: 'fa-circle-info text-cyan-400', w: 480, h: 360, isPinned: true }
+        };
+
+        let openWindows = {};
+        let activeApp = null;
+        let zIndexCounter = 100;
+        let currentIconSize = 'medium';
+        let iconCustomPositions = {};
+
+        /* Advanced Web Audio Synthesizer */
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playStartupSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(1.5, now);
+                masterGain.connect(ctx.destination);
+
+                const freqs = [196.00, 293.66, 392.00, 493.88, 587.33];
+
+                freqs.forEach((f, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = idx < 2 ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(f, now);
+
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.25, now + 0.1 + idx * 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
+
+                    osc.connect(gain);
+                    gain.connect(masterGain);
+
+                    osc.start(now + idx * 0.05);
+                    osc.stop(now + 2.3);
+                });
+            } catch (e) { console.log('Audio error:', e); }
+        }
+
+        function playShutdownSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(1.5, now);
+                masterGain.connect(ctx.destination);
+
+                const freqs = [587.33, 493.88, 392.00, 293.66, 196.00];
+
+                freqs.forEach((f, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, now + idx * 0.12);
+
+                    gain.gain.setValueAtTime(0, now + idx * 0.12);
+                    gain.gain.linearRampToValueAtTime(0.2, now + idx * 0.12 + 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.8);
+
+                    osc.connect(gain);
+                    gain.connect(masterGain);
+
+                    osc.start(now + idx * 0.12);
+                    osc.stop(now + idx * 0.12 + 0.9);
+                });
+            } catch (e) { console.log('Audio error:', e); }
+        }
+
+        function playNotificationSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(1.8, now);
+                masterGain.connect(ctx.destination);
+
+                [523.25, 783.99].forEach((f, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, now + idx * 0.1);
+
+                    gain.gain.setValueAtTime(0, now + idx * 0.1);
+                    gain.gain.linearRampToValueAtTime(0.3, now + idx * 0.1 + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.4);
+
+                    osc.connect(gain);
+                    gain.connect(masterGain);
+
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.45);
+                });
+            } catch (e) { console.log('Audio error:', e); }
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const masterGain = ctx.createGain();
+                masterGain.gain.value = 1.8;
+                
+                osc.connect(gain);
+                gain.connect(masterGain);
+                masterGain.connect(ctx.destination);
+
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(700, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.04);
+                } else if (type === 'spin') {
+                    osc.frequency.setValueAtTime(350, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.03);
+                } else if (type === 'win') {
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.5);
+                }
+            } catch (e) {}
+        }
+
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('bios-screen').classList.add('hidden');
+                const bootScreen = document.getElementById('boot-screen');
+                bootScreen.classList.remove('hidden');
+
+                const taskbarEl = document.getElementById('taskbar');
+                const desktopIconsEl = document.getElementById('desktop-icons');
+                if (taskbarEl) taskbarEl.classList.add('taskbar-down');
+
+                setTimeout(() => {
+                    bootScreen.classList.add('boot-zoom-out');
+                    renderDesktopIcons();
+                    renderTaskbar();
+                    startClock();
+                    initBattery();
+                    playStartupSound();
+
+                    setTimeout(() => {
+                        bootScreen.classList.add('hidden');
+                        bootScreen.classList.remove('boot-zoom-out');
+                        
+                        if (taskbarEl) taskbarEl.classList.remove('taskbar-down');
+                        if (desktopIconsEl) desktopIconsEl.classList.add('loaded');
+
+                        setTimeout(() => { showWelcomePopup(); }, 800);
+                    }, 1200);
+                }, 1500);
+            }, 1000);
+        };
+
+        function showWelcomePopup() {
+            const popup = document.getElementById('welcome-popup');
+            if (popup) {
+                popup.classList.remove('hidden');
+                playNotificationSound();
+                setTimeout(() => { popup.classList.remove('translate-y-10', 'opacity-0'); }, 50);
+                setTimeout(() => { closeWelcomePopup(); }, 6000);
+            }
+        }
+
+        function closeWelcomePopup() {
+            const popup = document.getElementById('welcome-popup');
+            if (popup) {
+                popup.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => { popup.classList.add('hidden'); }, 300);
+            }
+        }
+
+        window.addEventListener('resize', () => { renderDesktopIcons(); });
+
+        function setIconSize(size) {
+            currentIconSize = size;
+            ['large', 'medium', 'small'].forEach(s => {
+                const el = document.getElementById(`check-icon-${s}`);
+                if (el) {
+                    if (s === size) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                }
+            });
+            renderDesktopIcons();
+        }
+
+        function renderDesktopIcons() {
+            const container = document.getElementById('desktop-icons');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const keys = Object.keys(ALL_APPS);
+            const desktopHeight = window.innerHeight - 40;
+
+            let iconDimensions = { w: 80, h: 80, gap: 16 };
+            if (currentIconSize === 'large') iconDimensions = { w: 96, h: 96, gap: 20 };
+            else if (currentIconSize === 'small') iconDimensions = { w: 64, h: 64, gap: 12 };
+
+            const stepY = iconDimensions.h + iconDimensions.gap;
+            const stepX = iconDimensions.w + iconDimensions.gap;
+            const maxRows = Math.max(1, Math.floor((desktopHeight - 20) / stepY));
+
+            keys.forEach((key, idx) => {
+                const app = ALL_APPS[key];
+                const btn = document.createElement('div');
+                btn.id = `desktop-icon-${key}`;
+                btn.className = `desktop-icon-btn icon-size-${currentIconSize} flex flex-col items-center justify-center p-2 rounded hover:bg-white/10 group text-center`;
+                
+                let leftPos, topPos;
+                if (iconCustomPositions[key]) {
+                    leftPos = iconCustomPositions[key].left;
+                    topPos = iconCustomPositions[key].top;
+                } else {
+                    let col = Math.floor(idx / maxRows);
+                    let row = idx % maxRows;
+                    leftPos = 16 + col * stepX;
+                    topPos = 16 + row * stepY;
+                }
+
+                btn.style.left = `${leftPos}px`;
+                btn.style.top = `${topPos}px`;
+                btn.ondblclick = () => openApp(key);
+
+                btn.innerHTML = `
+                    <i class="fa-solid ${app.icon} mb-1 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-tight line-clamp-2 px-1 pointer-events-none">${app.title}</span>
+                `;
+
+                makeIconDraggable(btn, key);
+                container.appendChild(btn);
+            });
+        }
+
+        function makeIconDraggable(element, key) {
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+
+            element.addEventListener('pointerdown', (e) => {
+                if (e.button !== 0) return;
+                isDragging = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialLeft = parseFloat(element.style.left) || 0;
+                initialTop = parseFloat(element.style.top) || 0;
+
+                element.setPointerCapture(e.pointerId);
+                element.classList.add('dragging');
+
+                function onPointerMove(e) {
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) isDragging = true;
+                    if (isDragging) {
+                        element.style.left = `${initialLeft + dx}px`;
+                        element.style.top = `${initialTop + dy}px`;
+                    }
+                }
+
+                function onPointerUp(e) {
+                    element.releasePointerCapture(e.pointerId);
+                    element.classList.remove('dragging');
+                    element.removeEventListener('pointermove', onPointerMove);
+                    element.removeEventListener('pointerup', onPointerUp);
+                    if (isDragging) {
+                        iconCustomPositions[key] = { left: parseFloat(element.style.left), top: parseFloat(element.style.top) };
+                    }
+                }
+
+                element.addEventListener('pointermove', onPointerMove);
+                element.addEventListener('pointerup', onPointerUp);
+            });
+        }
+
+        function refreshDesktop() {
+            iconCustomPositions = {};
+            renderDesktopIcons();
+        }
+
+        function openApp(key) {
+            playSound('click');
+            if (openWindows[key]) {
+                if (openWindows[key].isMinimized) restoreWindow(key);
+                else focusWindow(key);
+                return;
+            }
+
+            const app = ALL_APPS[key];
+            if (!app) return;
+
+            const win = document.createElement('div');
+            win.id = `win-${key}`;
+            win.className = `app-window opening absolute liquid-glass rounded-2xl overflow-hidden flex flex-col pointer-events-auto`;
+            win.style.width = `${app.w}px`;
+            win.style.height = `${app.h}px`;
+            win.style.top = `${60 + Object.keys(openWindows).length * 25}px`;
+            win.style.left = `${100 + Object.keys(openWindows).length * 25}px`;
+            win.style.zIndex = ++zIndexCounter;
+
+            win.onmousedown = () => focusWindow(key);
+
+            win.innerHTML = `
+                <div class="h-9 liquid-glass-header flex items-center justify-between px-3 cursor-move select-none relative z-10" onmousedown="startDrag(event, '${key}')">
+                    <div class="flex items-center gap-2 text-xs font-semibold text-white drop-shadow">
+                        <i class="fa-solid ${app.icon}"></i>
+                        <span>${app.title}</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="minimizeWindow('${key}')" class="w-6 h-6 hover:bg-white/20 rounded-md flex items-center justify-center text-xs transition"><i class="fa-solid fa-minus"></i></button>
+                        <button onclick="toggleMaximize('${key}')" class="w-6 h-6 hover:bg-white/20 rounded-md flex items-center justify-center text-xs transition"><i class="fa-regular fa-square"></i></button>
+                        <button onclick="closeWindow('${key}')" class="w-6 h-6 hover:bg-red-500/80 rounded-md flex items-center justify-center text-xs transition"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-hidden relative z-10" id="body-${key}"></div>
+            `;
+
+            document.getElementById('windows-container').appendChild(win);
+            const template = document.getElementById(`tpl-${key}`);
+            if (template) {
+                document.getElementById(`body-${key}`).appendChild(template.content.cloneNode(true));
+            }
+
+            openWindows[key] = { isMinimized: false, isMaximized: false };
+            focusWindow(key);
+            renderTaskbar();
+
+            if (key === 'mediaplayer') initMediaPlayer();
+            if (key === 'wheel') setTimeout(drawWheel, 100);
+            if (key === 'sysinfo') loadSysInfo();
+            if (key === 'hwtest') initHardwareTester();
+        }
+
+        let activeMediaMode = 'none'; // 'audio' or 'video'
+        let visualizerAnimFrame = null;
+
+        function initMediaPlayer() {
+            stopMedia();
+            loadSampleMedia('synth');
+        }
+
+        function loadSampleMedia(type) {
+            const video = document.getElementById('media-video');
+            const audio = document.getElementById('media-audio');
+            const visualizerContainer = document.getElementById('audio-visualizer-container');
+            const trackTitle = document.getElementById('media-track-title');
+
+            if (!video || !audio) return;
+
+            stopMedia();
+
+            if (type === 'sample_video') {
+                activeMediaMode = 'video';
+                video.src = "https://commondatastorage.googleapis.com/gtp-videos-bucket/sample/ForBiggerBlazes.mp4";
+                video.classList.remove('hidden');
+                visualizerContainer.classList.add('hidden');
+                if (trackTitle) trackTitle.innerText = "Sample Video - Big Buck Trail";
+            } else {
+                activeMediaMode = 'audio';
+                video.classList.add('hidden');
+                visualizerContainer.classList.remove('hidden');
+
+                if (type === 'synth') {
+                    audio.src = "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=synthwave-80s-110045.mp3";
+                    if (trackTitle) trackTitle.innerText = "Synthwave 80s Chill";
+                } else {
+                    audio.src = "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=lofi-study-112191.mp3";
+                    if (trackTitle) trackTitle.innerText = "Lofi Study Beats";
+                }
+                startEqualizerAnim();
+            }
+        }
+
+        function handleMediaImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            stopMedia();
+            const fileUrl = URL.createObjectURL(file);
+            const video = document.getElementById('media-video');
+            const audio = document.getElementById('media-audio');
+            const visualizerContainer = document.getElementById('audio-visualizer-container');
+            const trackTitle = document.getElementById('media-track-title');
+
+            if (trackTitle) trackTitle.innerText = file.name;
+
+            if (file.type.startsWith('video/')) {
+                activeMediaMode = 'video';
+                video.src = fileUrl;
+                video.classList.remove('hidden');
+                visualizerContainer.classList.add('hidden');
+            } else {
+                activeMediaMode = 'audio';
+                audio.src = fileUrl;
+                video.classList.add('hidden');
+                visualizerContainer.classList.remove('hidden');
+                startEqualizerAnim();
+            }
+
+            togglePlayMedia();
+        }
+
+        function getActiveMediaElement() {
+            if (activeMediaMode === 'video') return document.getElementById('media-video');
+            if (activeMediaMode === 'audio') return document.getElementById('media-audio');
+            return null;
+        }
+
+        function togglePlayMedia() {
+            const media = getActiveMediaElement();
+            const playBtn = document.getElementById('media-play-btn');
+            if (!media) return;
+
+            if (media.paused) {
+                media.play();
+                if (playBtn) playBtn.innerHTML = `<i class="fa-solid fa-pause"></i>`;
+            } else {
+                media.pause();
+                if (playBtn) playBtn.innerHTML = `<i class="fa-solid fa-play ml-0.5"></i>`;
+            }
+        }
+
+        function stopMedia() {
+            const video = document.getElementById('media-video');
+            const audio = document.getElementById('media-audio');
+            const playBtn = document.getElementById('media-play-btn');
+
+            if (video) { video.pause(); video.currentTime = 0; }
+            if (audio) { audio.pause(); audio.currentTime = 0; }
+            if (playBtn) playBtn.innerHTML = `<i class="fa-solid fa-play ml-0.5"></i>`;
+            if (visualizerAnimFrame) cancelAnimationFrame(visualizerAnimFrame);
+        }
+
+        function updateMediaProgress() {
+            const media = getActiveMediaElement();
+            const seekBar = document.getElementById('media-seek-bar');
+            const timeCurrent = document.getElementById('media-current-time');
+            const timeDuration = document.getElementById('media-duration');
+
+            if (!media) return;
+
+            if (!isNaN(media.duration)) {
+                if (seekBar) seekBar.value = (media.currentTime / media.duration) * 100;
+                if (timeDuration) timeDuration.innerText = formatTime(media.duration);
+            }
+            if (timeCurrent) timeCurrent.innerText = formatTime(media.currentTime);
+        }
+
+        function seekMedia(val) {
+            const media = getActiveMediaElement();
+            if (media && !isNaN(media.duration)) {
+                media.currentTime = (val / 100) * media.duration;
+            }
+        }
+
+        function setMediaVolume(val) {
+            const media = getActiveMediaElement();
+            const volIcon = document.getElementById('media-volume-icon');
+            if (media) {
+                media.volume = val / 100;
+                if (volIcon) {
+                    if (val == 0) volIcon.className = "fa-solid fa-volume-xmark text-red-400";
+                    else if (val < 50) volIcon.className = "fa-solid fa-volume-low";
+                    else volIcon.className = "fa-solid fa-volume-high";
+                }
+            }
+        }
+
+        function toggleMuteMedia() {
+            const media = getActiveMediaElement();
+            const volBar = document.getElementById('media-volume-bar');
+            if (media) {
+                media.muted = !media.muted;
+                if (volBar) volBar.value = media.muted ? 0 : media.volume * 100;
+                setMediaVolume(media.muted ? 0 : media.volume * 100);
+            }
+        }
+
+        function rewindMedia(sec) {
+            const media = getActiveMediaElement();
+            if (media) media.currentTime = Math.max(0, media.currentTime - sec);
+        }
+
+        function forwardMedia(sec) {
+            const media = getActiveMediaElement();
+            if (media) media.currentTime = Math.min(media.duration || 0, media.currentTime + sec);
+        }
+
+        function toggleMediaFullscreen() {
+            const video = document.getElementById('media-video');
+            if (video && activeMediaMode === 'video') {
+                if (video.requestFullscreen) video.requestFullscreen();
+            }
+        }
+
+        function onMediaEnded() {
+            const playBtn = document.getElementById('media-play-btn');
+            if (playBtn) playBtn.innerHTML = `<i class="fa-solid fa-play ml-0.5"></i>`;
+        }
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        function startEqualizerAnim() {
+            const canvas = document.getElementById('equalizer-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const bars = 24;
+
+            function render() {
+                const media = getActiveMediaElement();
+                const isPlaying = media && !media.paused;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const barWidth = (canvas.width / bars) - 3;
+
+                for (let i = 0; i < bars; i++) {
+                    let height = isPlaying ? Math.random() * (canvas.height - 10) + 6 : 4;
+                    let x = i * (barWidth + 3);
+                    let y = canvas.height - height;
+
+                    let gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+                    gradient.addColorStop(0, '#8b5cf6');
+                    gradient.addColorStop(1, '#ec4899');
+
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(x, y, barWidth, height);
+                }
+
+                visualizerAnimFrame = requestAnimationFrame(render);
+            }
+            render();
+        }
+
+        const KEYBOARD_LAYOUT = [
+            ['Escape', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'],
+            ['Backquote', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'Digit0', 'Minus', 'Equal', 'Backspace'],
+            ['Tab', 'KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyY', 'KeyU', 'KeyI', 'KeyO', 'KeyP', 'BracketLeft', 'BracketRight', 'Backslash'],
+            ['CapsLock', 'KeyA', 'KeyS', 'KeyD', 'KeyF', 'KeyG', 'KeyH', 'KeyJ', 'KeyK', 'KeyL', 'Semicolon', 'Quote', 'Enter'],
+            ['ShiftLeft', 'KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB', 'KeyN', 'KeyM', 'Comma', 'Period', 'Slash', 'ShiftRight'],
+            ['ControlLeft', 'MetaLeft', 'AltLeft', 'Space', 'AltRight', 'ControlRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'ArrowRight']
+        ];
+        const KEY_LABELS = {
+            'Backquote': '`', 'Minus': '-', 'Equal': '=', 'Backspace': '← Backspace',
+            'Tab': 'Tab', 'BracketLeft': '[', 'BracketRight': ']', 'Backslash': '\\',
+            'CapsLock': 'Caps Lock', 'Semicolon': ';', 'Quote': "'", 'Enter': 'Enter ↵',
+            'ShiftLeft': 'Shift', 'ShiftRight': 'Shift', 'Comma': ',', 'Period': '.', 'Slash': '/',
+            'ControlLeft': 'Ctrl', 'ControlRight': 'Ctrl', 'MetaLeft': 'Win', 'AltLeft': 'Alt', 'AltRight': 'Alt',
+            'Space': 'Space', 'ArrowLeft': '←', 'ArrowUp': '↑', 'ArrowDown': '↓', 'ArrowRight': '→'
+        };
+        let testedKeys = new Set();
+
+        function initHardwareTester() { renderKeyboard(); initMouseTester(); }
+        function switchHwTab(tab) {
+            ['keyboard', 'mouse', 'audio', 'display'].forEach(t => {
+                const el = document.getElementById(`hwtab-${t}`);
+                const btn = document.getElementById(`hwtab-btn-${t}`);
+                if (el && btn) {
+                    if (t === tab) {
+                        el.classList.remove('hidden');
+                        btn.className = "px-4 py-2.5 border-b-2 border-blue-500 font-semibold bg-white/5 flex items-center gap-2";
+                    } else {
+                        el.classList.add('hidden');
+                        btn.className = "px-4 py-2.5 border-b-2 border-transparent hover:bg-white/5 flex items-center gap-2";
+                    }
+                }
+            });
+        }
+
+        function renderKeyboard() {
+            const container = document.getElementById('virtual-keyboard');
+            if (!container) return;
+            container.innerHTML = '';
+            KEYBOARD_LAYOUT.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = "flex gap-1";
+                row.forEach(code => {
+                    const btn = document.createElement('div');
+                    btn.id = `key-${code}`;
+                    let label = KEY_LABELS[code] || code.replace('Key', '').replace('Digit', '');
+                    let widthClass = "w-9";
+                    if (code === 'Backspace' || code === 'Enter') widthClass = "w-20";
+                    else if (code === 'Tab' || code === 'CapsLock') widthClass = "w-16";
+                    else if (code.includes('Shift')) widthClass = "w-24";
+                    else if (code === 'Space') widthClass = "w-56";
+                    else if (code.includes('Control') || code.includes('Alt') || code.includes('Meta')) widthClass = "w-12";
+                    btn.className = `${widthClass} h-9 bg-[#252525] border border-white/10 rounded flex items-center justify-center text-[10px] text-gray-300 font-semibold transition-all select-none`;
+                    btn.innerText = label;
+                    if (testedKeys.has(code)) btn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-400');
+                    rowDiv.appendChild(btn);
+                });
+                container.appendChild(rowDiv);
+            });
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const lastPressed = document.getElementById('key-last-pressed');
+            if (lastPressed) lastPressed.innerText = `${e.code} (${e.key})`;
+            const keyEl = document.getElementById(`key-${e.code}`);
+            if (keyEl) {
+                testedKeys.add(e.code);
+                keyEl.className = keyEl.className.replace('bg-[#252525]', 'bg-amber-500 text-black border-amber-300 scale-95');
+                playSound('click');
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            const keyEl = document.getElementById(`key-${e.code}`);
+            if (keyEl) keyEl.className = keyEl.className.replace('bg-amber-500 text-black border-amber-300 scale-95', 'bg-emerald-600 text-white border-emerald-400');
+        });
+        function resetKeyTest() { testedKeys.clear(); renderKeyboard(); }
+
+        function initMouseTester() {
+            const area = document.getElementById('mouse-draw-area');
+            if (!area) return;
+            area.addEventListener('mousedown', (e) => {
+                let btnId = e.button === 0 ? 'mouse-btn-left' : e.button === 1 ? 'mouse-btn-middle' : 'mouse-btn-right';
+                const target = document.getElementById(btnId);
+                if (target) {
+                    target.classList.add('bg-blue-600', 'border-blue-400', 'text-white');
+                    setTimeout(() => target.classList.remove('bg-blue-600', 'border-blue-400', 'text-white'), 300);
+                }
+            });
+        }
+
+        function playStereoTest(channel) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const panner = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+                const gain = ctx.createGain();
+                osc.frequency.setValueAtTime(440, ctx.currentTime);
+                if (panner) { panner.pan.value = channel === 'left' ? -1 : 1; osc.connect(panner); panner.connect(gain); }
+                else { osc.connect(gain); }
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 1);
+            } catch (err) {}
+        }
+
+        function startDeadPixelTest() {
+            const overlay = document.getElementById('dead-pixel-overlay');
+            if (!overlay) return;
+            const colors = ['#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff'];
+            let idx = 0;
+            overlay.style.backgroundColor = colors[idx];
+            overlay.classList.remove('hidden');
+            function nextColor(e) {
+                if (e.key === 'Escape') { overlay.classList.add('hidden'); window.removeEventListener('keydown', nextColor); overlay.removeEventListener('click', nextColor); return; }
+                idx++;
+                if (idx >= colors.length) { overlay.classList.add('hidden'); window.removeEventListener('keydown', nextColor); overlay.removeEventListener('click', nextColor); }
+                else { overlay.style.backgroundColor = colors[idx]; }
+            }
+            window.addEventListener('keydown', nextColor);
+            overlay.addEventListener('click', nextColor);
+        }
+
+        function closeWindow(key) {
+            if (key === 'mediaplayer') stopMedia();
+            const win = document.getElementById(`win-${key}`);
+            if (win) win.remove();
+            delete openWindows[key];
+            renderTaskbar();
+        }
+
+        function minimizeWindow(key) {
+            const win = document.getElementById(`win-${key}`);
+            if (win) { win.classList.add('minimizing'); setTimeout(() => { win.classList.add('hidden'); openWindows[key].isMinimized = true; renderTaskbar(); }, 240); }
+        }
+
+        function restoreWindow(key) {
+            const win = document.getElementById(`win-${key}`);
+            if (win) { win.classList.remove('hidden', 'minimizing'); win.classList.add('restoring'); openWindows[key].isMinimized = false; focusWindow(key); }
+        }
+
+        function focusWindow(key) {
+            const win = document.getElementById(`win-${key}`);
+            if (win) { win.classList.remove('hidden'); win.style.zIndex = ++zIndexCounter; openWindows[key].isMinimized = false; activeApp = key; renderTaskbar(); }
+        }
+
+        function toggleMaximize(key) {
+            const win = document.getElementById(`win-${key}`);
+            if (!win) return;
+            if (openWindows[key].isMaximized) {
+                win.style.top = '80px'; win.style.left = '100px'; win.style.width = `${ALL_APPS[key].w}px`; win.style.height = `${ALL_APPS[key].h}px`;
+                openWindows[key].isMaximized = false;
+            } else {
+                win.style.top = '0px'; win.style.left = '0px'; win.style.width = '100vw'; win.style.height = 'calc(100vh - 40px)';
+                openWindows[key].isMaximized = true;
+            }
+        }
+
+        function startDrag(e, key) {
+            if (openWindows[key].isMaximized) return;
+            const win = document.getElementById(`win-${key}`);
+            let shiftX = e.clientX - win.getBoundingClientRect().left;
+            let shiftY = e.clientY - win.getBoundingClientRect().top;
+            function moveAt(pageX, pageY) { win.style.left = pageX - shiftX + 'px'; win.style.top = pageY - shiftY + 'px'; }
+            function onMouseMove(event) { moveAt(event.pageX, event.pageY); }
+            document.addEventListener('mousemove', onMouseMove);
+            document.onmouseup = function() { document.removeEventListener('mousemove', onMouseMove); document.onmouseup = null; };
+        }
+
+        function renderTaskbar() {
+            const container = document.getElementById('taskbar-apps');
+            if (!container) return;
+            container.innerHTML = '';
+            const keysToRender = new Set([...Object.keys(ALL_APPS).filter(k => ALL_APPS[k].isPinned), ...Object.keys(openWindows)]);
+            keysToRender.forEach(key => {
+                const app = ALL_APPS[key];
+                const isOpen = !!openWindows[key];
+                const isActive = activeApp === key && isOpen && !openWindows[key].isMinimized;
+                const btn = document.createElement('button');
+                btn.className = `h-8 px-3 rounded-lg flex items-center gap-2 text-xs transition relative ${isActive ? 'bg-white/30 border border-white/40 shadow-inner' : 'liquid-glass-button'}`;
+                btn.onclick = () => {
+                    if (!isOpen) openApp(key);
+                    else if (openWindows[key].isMinimized) restoreWindow(key);
+                    else if (activeApp === key) minimizeWindow(key);
+                    else focusWindow(key);
+                };
+                btn.innerHTML = `<i class="fa-solid ${app.icon} text-sm drop-shadow"></i>${isOpen ? `<div class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 ${isActive ? 'bg-blue-300' : 'bg-gray-300'} rounded-full"></div>` : ''}`;
+                container.appendChild(btn);
+            });
+        }
+
+        function toggleStartMenu(e) { if (e) e.stopPropagation(); playSound('click'); document.getElementById('start-menu').classList.toggle('hidden'); }
+
+        function toggleTaskView() {
+            const overlay = document.getElementById('task-view-overlay');
+            const list = document.getElementById('task-view-list');
+            if (overlay.classList.contains('hidden')) {
+                list.innerHTML = '';
+                const openKeys = Object.keys(openWindows);
+                if (openKeys.length === 0) list.innerHTML = `<div class="text-gray-400 col-span-full text-center py-12">Không có ứng dụng nào đang mở.</div>`;
+                else {
+                    openKeys.forEach(key => {
+                        const app = ALL_APPS[key];
+                        const card = document.createElement('div');
+                        card.className = "bg-[#252525] border border-white/10 hover:border-blue-500 rounded-lg p-4 flex flex-col justify-between h-40 cursor-pointer transition shadow-xl";
+                        card.onclick = () => { focusWindow(key); toggleTaskView(); };
+                        card.innerHTML = `<div class="flex items-center justify-between"><div class="flex items-center gap-2 font-bold text-sm"><i class="fa-solid ${app.icon}"></i><span>${app.title}</span></div></div>`;
+                        list.appendChild(card);
+                    });
+                }
+                overlay.classList.remove('hidden');
+            } else { overlay.classList.add('hidden'); }
+        }
+
+        function handleSearch(e) {
+            if (e.key === 'Enter') {
+                const query = e.target.value.toLowerCase().trim();
+                const matched = Object.keys(ALL_APPS).find(k => ALL_APPS[k].title.toLowerCase().includes(query));
+                if (matched) { openApp(matched); e.target.value = ''; }
+            }
+        }
+
+        function triggerShutdown(e) {
+            if (e) e.stopPropagation();
+            document.getElementById('start-menu').classList.add('hidden');
+            
+            // Step 1: Slide down taskbar
+            document.getElementById('taskbar').classList.add('taskbar-down');
+            
+            // Step 2: Hide desktop icons shortly after taskbar starts moving down
+            setTimeout(() => {
+                const iconsEl = document.getElementById('desktop-icons');
+                if (iconsEl) {
+                    iconsEl.classList.remove('loaded');
+                    iconsEl.classList.add('opacity-0', 'scale-95');
+                }
+            }, 180);
+
+            // Step 3: Display shutdown screen after icons finish fading out
+            setTimeout(() => {
+                const screen = document.getElementById('shutdown-screen');
+                document.getElementById('shutdown-text').innerText = "Shutting down...";
+                screen.classList.remove('hidden');
+                setTimeout(() => { screen.classList.remove('opacity-0'); }, 50);
+                
+                playShutdownSound();
+
+                setTimeout(() => {
+                    screen.classList.add('opacity-0');
+                    setTimeout(() => {
+                        screen.classList.add('hidden');
+                        document.getElementById('safe-turnoff-screen').classList.remove('hidden');
+                    }, 400);
+                }, 1200);
+            }, 500);
+        }
+
+        function triggerReboot(e) {
+            if (e) e.stopPropagation();
+            document.getElementById('start-menu').classList.add('hidden');
+            
+            // Step 1: Slide down taskbar
+            document.getElementById('taskbar').classList.add('taskbar-down');
+            
+            // Step 2: Hide desktop icons
+            setTimeout(() => {
+                const iconsEl = document.getElementById('desktop-icons');
+                if (iconsEl) {
+                    iconsEl.classList.remove('loaded');
+                    iconsEl.classList.add('opacity-0', 'scale-95');
+                }
+            }, 180);
+
+            // Step 3: Show restart screen
+            setTimeout(() => {
+                const screen = document.getElementById('shutdown-screen');
+                document.getElementById('shutdown-text').innerText = "Restarting...";
+                screen.classList.remove('hidden');
+                setTimeout(() => screen.classList.remove('opacity-0'), 50);
+
+                playShutdownSound();
+
+                setTimeout(() => { location.reload(); }, 1200);
+            }, 500);
+        }
+
+        function triggerReboot(e) {
+            if (e) e.stopPropagation();
+            document.getElementById('start-menu').classList.add('hidden');
+            document.getElementById('taskbar').classList.add('taskbar-down');
+            document.getElementById('desktop-icons').classList.add('opacity-0');
+
+            const screen = document.getElementById('shutdown-screen');
+            document.getElementById('shutdown-text').innerText = "Restarting...";
+            screen.classList.remove('hidden');
+            setTimeout(() => screen.classList.remove('opacity-0'), 50);
+
+            playShutdownSound();
+
+            setTimeout(() => { location.reload(); }, 1200);
+        }
+
+        function powerOn() { location.reload(); }
+
+        const wheelColors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+        let currentWheelAngle = 0;
+
+        function drawWheel() {
+            const canvas = document.getElementById('wheel-canvas');
+            const textarea = document.getElementById('wheel-input');
+            if (!canvas || !textarea) return;
+            const ctx = canvas.getContext('2d');
+            const items = textarea.value.split('\n').filter(line => line.trim() !== '');
+            if (items.length === 0) return;
+            const numItems = items.length;
+            const sliceAngle = (2 * Math.PI) / numItems;
+            const radius = canvas.width / 2;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < numItems; i++) {
+                const angle = currentWheelAngle + i * sliceAngle;
+                ctx.beginPath();
+                ctx.fillStyle = wheelColors[i % wheelColors.length];
+                ctx.moveTo(radius, radius);
+                ctx.arc(radius, radius, radius - 4, angle, angle + sliceAngle);
+                ctx.closePath();
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "rgba(255,255,255,0.3)";
+                ctx.stroke();
+                ctx.save();
+                ctx.translate(radius, radius);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 15px Segoe UI";
+                ctx.fillText(items[i], radius - 35, 5);
+                ctx.restore();
+            }
+        }
+
+        function spinWheel() {
+            const textarea = document.getElementById('wheel-input');
+            const resultEl = document.getElementById('wheel-result');
+            const btn = document.getElementById('spin-btn');
+            if (!textarea) return;
+            const items = textarea.value.split('\n').filter(line => line.trim() !== '');
+            if (items.length === 0) return;
+            btn.disabled = true;
+            resultEl.innerHTML = `<span class="animate-pulse text-yellow-300">⏳ Đang quay...</span>`;
+            const totalDegrees = (6 + Math.random() * 6) * 360;
+            const duration = 4500;
+            const startTime = performance.now();
+            const startAngle = currentWheelAngle;
+            function animateSpin(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentWheelAngle = startAngle + (totalDegrees * Math.PI / 180) * easeOut;
+                drawWheel();
+                if (Math.random() < 0.25) playSound('spin');
+                if (progress < 1) { requestAnimationFrame(animateSpin); }
+                else {
+                    btn.disabled = false;
+                    let currentRot = currentWheelAngle % (2 * Math.PI);
+                    if (currentRot < 0) currentRot += 2 * Math.PI;
+                    let arrowAngle = (3 * Math.PI / 2 - currentRot) % (2 * Math.PI);
+                    if (arrowAngle < 0) arrowAngle += 2 * Math.PI;
+                    const selectedIdx = Math.floor(arrowAngle / ((2 * Math.PI) / items.length));
+                    const winningItem = items[selectedIdx] || items[0];
+                    resultEl.innerHTML = `🏆 <span class="text-2xl font-black text-yellow-300 animate-bounce">${winningItem}</span>`;
+                    playSound('win');
+                    playNotificationSound();
+                }
+            }
+            requestAnimationFrame(animateSpin);
+        }
+
+        let calcExpr = '';
+        function calcInput(val) {
+            const screen = document.getElementById('calc-screen');
+            if (val === 'C' || val === 'CE') calcExpr = '';
+            else if (val === 'back') calcExpr = calcExpr.slice(0, -1);
+            else if (val === '=') {
+                try { calcExpr = eval(calcExpr.replace(/×/g, '*').replace(/÷/g, '/')).toString(); }
+                catch { calcExpr = 'Error'; }
+            } else { calcExpr += val; }
+            if (screen) screen.innerText = calcExpr || '0';
+        }
+
+        function focusCmdInput() { const input = document.getElementById('cmd-input'); if (input) input.focus(); }
+        function handleCmd(e) {
+            if (e.key === 'Enter') {
+                const input = e.target;
+                const cmd = input.value.trim().toLowerCase();
+                const output = document.getElementById('cmd-output');
+                const line = document.createElement('div');
+                line.innerHTML = `<span class="text-white">C:\\Users\\Administrator&gt;</span> ${input.value}`;
+                output.appendChild(line);
+                const res = document.createElement('div');
+                res.className = "text-gray-300 mb-1";
+                if (cmd === 'help') res.innerText = 'Commands: help, ver, cls, date, time, systeminfo';
+                else if (cmd === 'ver') res.innerText = 'LongOS [Version 10.0.19045.3803]';
+                else if (cmd === 'cls') output.innerHTML = '';
+                else if (cmd === 'date') res.innerText = new Date().toLocaleDateString();
+                else if (cmd === 'time') res.innerText = new Date().toLocaleTimeString();
+                else if (cmd === 'systeminfo') res.innerText = `OS: LongOS 10 Web Edition | RAM: 8 GB`;
+                else if (cmd !== '') res.innerText = `'${cmd}' is not recognized.`;
+                if (cmd !== 'cls') output.appendChild(res);
+                input.value = '';
+                const cmdBox = document.getElementById('cmd-container');
+                if (cmdBox) cmdBox.scrollTop = cmdBox.scrollHeight;
+            }
+        }
+
+        function switchTaskTab(tab) {
+            const procTab = document.getElementById('task-tab-processes');
+            const perfTab = document.getElementById('task-tab-performance');
+            if (tab === 'processes') { procTab.classList.remove('hidden'); perfTab.classList.add('hidden'); }
+            else { procTab.classList.add('hidden'); perfTab.classList.remove('hidden'); }
+        }
+
+        function loadSysInfo() {
+            const sysRam = document.getElementById('sys-ram');
+            const sysCpu = document.getElementById('sys-cpu');
+            const sysScreen = document.getElementById('sys-screen');
+            if (sysRam) sysRam.innerText = '8 GB RAM';
+            if (sysCpu) sysCpu.innerText = `${navigator.hardwareConcurrency || 8} Threads`;
+            if (sysScreen) sysScreen.innerText = `${window.innerWidth} x ${window.innerHeight}`;
+        }
+
+        function startClock() {
+            function update() {
+                const clockTime = document.getElementById('clock-time');
+                const clockDate = document.getElementById('clock-date');
+                const now = new Date();
+                if (clockTime) clockTime.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                if (clockDate) clockDate.innerText = now.toLocaleDateString();
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        function initBattery() {
+            if (navigator.getBattery) {
+                navigator.getBattery().then(bat => {
+                    function updateBat() {
+                        const batText = document.getElementById('battery-text');
+                        if (batText) batText.innerText = `${Math.round(bat.level * 100)}%`;
+                    }
+                    updateBat();
+                });
+            }
+        }
+    </script>
+</body>
+</html>
