@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LongOS - Windows 10 Web Edition with Media Player</title>
+    <title>LongOS - Operating System Boot Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap');
         
         * {
             user-select: none;
@@ -24,11 +24,91 @@
             background-color: #000;
         }
 
-        #desktop {
+        #os-chooser {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            z-index: 999999;
+        }
+
+        .os-card {
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+        }
+
+        .os-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .os-card.selected {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .liquid-glass {
+            background: rgba(20, 20, 25, 0.45) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+        }
+
+        .liquid-glass-header {
+            background: rgba(30, 30, 35, 0.35) !important;
+            backdrop-filter: blur(15px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .liquid-glass-button {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.2s ease !important;
+        }
+        .liquid-glass-button:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+        }
+
+        .win11-mica {
+            background: rgba(25, 25, 32, 0.52) !important;
+            backdrop-filter: blur(35px) saturate(220%) contrast(105%) !important;
+            -webkit-backdrop-filter: blur(35px) saturate(220%) contrast(105%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            box-shadow: 0 24px 60px 0 rgba(0, 0, 0, 0.6), 
+                        inset 0 1px 0 0 rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .win11-taskbar {
+            background: rgba(18, 18, 22, 0.65) !important;
+            backdrop-filter: blur(30px) saturate(200%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .win11-button {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1) !important;
+        }
+        .win11-button:hover {
+            background: rgba(255, 255, 255, 0.16) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            transform: scale(1.02);
+        }
+
+        #desktop.win10-desktop {
             background-image: url('https://ia903107.us.archive.org/16/items/wallpapersprunkiorenxpinki/Sprunki%20GrayOC%20x%20Wendabow%20see%20board%20write%20LongOS.png');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
+        }
+
+        #desktop.win11-desktop {
+            background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
         }
 
         .icon-size-large { width: 96px; height: 96px; font-size: 13px; }
@@ -40,22 +120,10 @@
 
         .desktop-icon-btn {
             position: absolute;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, font-size 0.2s, width 0.2s, height 0.2s;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
             cursor: pointer;
             user-select: none;
             touch-action: none;
-            will-change: transform, opacity;
-        }
-        .desktop-icon-btn.dragging {
-            opacity: 0.8;
-            z-index: 1000 !important;
-            transition: none !important;
-        }
-
-        .app-window {
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s ease, height 0.25s ease, top 0.25s ease, left 0.25s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
-            will-change: transform, opacity;
         }
         .desktop-icon-btn.dragging {
             opacity: 0.8;
@@ -65,53 +133,37 @@
 
         .app-window {
             transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.25s ease, width 0.25s ease, height 0.25s ease, top 0.25s ease, left 0.25s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
-        }
-        /* Liquid Glass Modern Effect Styles */
-        .liquid-glass {
-            background: rgba(255, 255, 255, 0.08) !important;
-            backdrop-filter: blur(20px) saturate(190%) contrast(105%) !important;
-            -webkit-backdrop-filter: blur(20px) saturate(190%) contrast(105%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.22) !important;
-            box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.45), 
-                        inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
-                        inset 0 -1px 0 0 rgba(255, 255, 255, 0.08) !important;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.12);
         }
 
-        .liquid-glass::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.15), transparent 40%),
-                        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.12), transparent 50%);
-            pointer-events: none;
-            z-index: 0;
+        body.mobile-mode .app-window {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: calc(100vh - 56px) !important;
+            border-radius: 0 !important;
+            border: none !important;
         }
 
-        .liquid-glass-header {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
-            backdrop-filter: blur(15px) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+        body.mobile-mode #desktop-icons {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 12px !important;
+            padding: 16px !important;
+            position: relative !important;
+            height: auto !important;
         }
 
-        .liquid-glass-button {
-            background: rgba(255, 255, 255, 0.12) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
-
-        .liquid-glass-button:hover {
-            background: rgba(255, 255, 255, 0.25) !important;
-            border-color: rgba(255, 255, 255, 0.45) !important;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-            transform: translateY(-1px);
+        body.mobile-mode .desktop-icon-btn {
+            position: relative !important;
+            left: auto !important;
+            top: auto !important;
+            width: 100% !important;
+            height: 84px !important;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .app-window.opening { animation: windowOpen 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
@@ -142,7 +194,6 @@
 
         #taskbar { 
             transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease; 
-            will-change: transform, opacity;
         }
         .taskbar-down { transform: translateY(100%); opacity: 0; }
 
@@ -150,7 +201,6 @@
             opacity: 0;
             transform: scale(0.96);
             transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
-            will-change: transform, opacity;
         }
         #desktop-icons.loaded {
             opacity: 1;
@@ -200,7 +250,6 @@
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
-        /* Custom range slider styling */
         input[type=range] {
             -webkit-appearance: none;
             background: rgba(255, 255, 255, 0.2);
@@ -223,54 +272,115 @@
 </head>
 <body class="text-white select-none overflow-hidden bg-black" oncontextmenu="return false;">
 
-    <div id="bios-screen" class="fixed inset-0 bg-black text-white font-mono z-[99999] flex items-center justify-center">
+    <div id="os-chooser" class="fixed inset-0 flex flex-col items-center justify-center p-6">
+        <div class="max-w-xl w-full text-center space-y-8">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-2">
+                    <i class="fa-solid fa-microchip"></i> LongOS Boot Manager v2026
+                </div>
+                <h1 class="text-3xl md:text-5xl font-light tracking-tight text-white">Choose an operating system</h1>
+                <p class="text-xs md:text-sm text-gray-400">Select the version of LongOS you want to boot into today.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                <!-- Option 1: Windows 10 OS 26 -->
+                <div id="card-os26" onclick="selectOS('os26')" class="os-card p-5 rounded-2xl cursor-pointer transition flex flex-col justify-between group selected">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 text-lg">
+                                <i class="fa-brands fa-windows"></i>
+                            </div>
+                            <span class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-mono">Stable</span>
+                        </div>
+                        <h3 class="font-bold text-base text-white group-hover:text-blue-300 transition">Windows 10 OS 26</h3>
+                        <p class="text-xs text-gray-400 mt-1">Giao diện Windows 10 cổ điển quen thuộc với thanh Liquid Glass mượt mà.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-blue-400 font-semibold">
+                        <span>Khởi động OS 26</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Option 2: Windows 11 OS 27 -->
+                <div id="card-os27" onclick="selectOS('os27')" class="os-card p-5 rounded-2xl cursor-pointer transition flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-400 text-lg">
+                                <i class="fa-brands fa-windows"></i>
+                            </div>
+                            <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-mono">Next-Gen Fluent</span>
+                        </div>
+                        <h3 class="font-bold text-base text-white group-hover:text-purple-300 transition">Windows 11 OS 27</h3>
+                        <p class="text-xs text-gray-400 mt-1">Thanh taskbar căn giữa chuẩn Windows 11 cùng hiệu ứng Mica lỏng cao cấp.</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-purple-400 font-semibold">
+                        <span>Khởi động OS 27</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onclick="bootSelectedOS()" class="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-power-off"></i> Khởi động ngay (<span id="countdown-timer">5</span>s)
+                </button>
+            </div>
+            
+            <div class="text-[11px] text-gray-400 pt-2 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-mobile-screen-button text-cyan-400"></i>
+                <span>Chế độ hiển thị: <strong id="current-mode-indicator" class="text-white">Desktop Mode</strong> (Tự động nhận diện thiết bị)</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="bios-screen" class="fixed inset-0 bg-black text-white font-mono z-[99995] hidden flex items-center justify-center">
         <div class="text-4xl md:text-6xl font-bold tracking-widest text-gray-100 flex items-center">
             LongOS<span id="bios-cursor" class="animate-pulse text-emerald-400">-</span>
         </div>
     </div>
 
-    <div id="boot-screen" class="fixed inset-0 bg-black z-[9999] hidden flex flex-col items-center justify-center space-y-12 transition-all">
+    <div id="boot-screen" class="fixed inset-0 bg-black z-[9990] hidden flex flex-col items-center justify-center space-y-12 transition-all">
         <div class="grid grid-cols-2 gap-1.5 w-24 h-24 transform -skew-x-6">
-            <div class="bg-[#00adef]"></div>
-            <div class="bg-[#00adef]"></div>
-            <div class="bg-[#00adef]"></div>
-            <div class="bg-[#00adef]"></div>
+            <div id="boot-logo-1" class="bg-[#00adef]"></div>
+            <div id="boot-logo-2" class="bg-[#00adef]"></div>
+            <div id="boot-logo-3" class="bg-[#00adef]"></div>
+            <div id="boot-logo-4" class="bg-[#00adef]"></div>
         </div>
         <div class="win-spinner">
             <div></div><div></div><div></div><div></div><div></div>
         </div>
     </div>
 
-    <div id="shutdown-screen" class="fixed inset-0 bg-black/5 backdrop-blur-[10px] z-[99990] hidden flex flex-col items-center justify-center text-white transition-opacity duration-500 opacity-0">
+    <div id="shutdown-screen" class="fixed inset-0 bg-black/5 backdrop-blur-[10px] z-[99980] hidden flex flex-col items-center justify-center text-white transition-opacity duration-500 opacity-0">
         <div class="win-spinner mb-6">
             <div></div><div></div><div></div><div></div><div></div>
         </div>
         <h1 id="shutdown-text" class="text-2xl md:text-3xl font-light">Shutting down...</h1>
     </div>
 
-    <div id="safe-turnoff-screen" class="fixed inset-0 bg-black z-[99995] hidden flex flex-col items-center justify-center text-amber-500 font-mono p-4 text-center">
+    <div id="safe-turnoff-screen" class="fixed inset-0 bg-black z-[99990] hidden flex flex-col items-center justify-center text-amber-500 font-mono p-4 text-center">
         <h1 class="text-2xl md:text-4xl font-bold mb-4">It is now safe to turn off your web browser.</h1>
-        <button onclick="powerOn()" class="mt-8 px-6 py-2 border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black rounded transition">
+        <button onclick="location.reload()" class="mt-8 px-6 py-2 border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-black rounded transition">
             <i class="fa-solid fa-power-off mr-2"></i>Power On LongOS
         </button>
     </div>
 
-    <div id="desktop" class="relative w-screen h-screen bg-black overflow-hidden flex flex-col justify-between">
+    <div id="desktop" class="relative w-screen h-screen bg-black overflow-hidden flex flex-col justify-between win10-desktop">
         <div id="desktop-icons" class="p-3 grid grid-flow-col auto-cols-max grid-rows-6 gap-4 z-10 transition-opacity duration-300"></div>
 
         <!-- Notification Toast Popup -->
-        <div id="welcome-popup" class="fixed bottom-12 right-6 liquid-glass rounded-2xl p-4 w-80 md:w-96 z-[9500] hidden transform translate-y-10 opacity-0 transition-all duration-300">
+        <div id="welcome-popup" class="fixed bottom-14 right-6 liquid-glass rounded-2xl p-4 w-80 md:w-96 z-[9500] hidden transform translate-y-10 opacity-0 transition-all duration-300">
             <div class="flex justify-between items-start mb-2 relative z-10">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-blue-500/80 backdrop-blur-md flex items-center justify-center font-bold text-white text-xs shadow-lg">L</div>
+                    <div id="popup-avatar" class="w-8 h-8 rounded-full bg-blue-500/80 backdrop-blur-md flex items-center justify-center font-bold text-white text-xs shadow-lg">L</div>
                     <div>
-                        <h4 class="font-bold text-sm text-white drop-shadow">Chào mừng đến với LongOS!</h4>
+                        <h4 id="popup-title" class="font-bold text-sm text-white drop-shadow">Chào mừng đến với LongOS 26!</h4>
                         <span class="text-[10px] text-gray-300">Vừa xong • Windows 10 Web Edition</span>
                     </div>
                 </div>
                 <button onclick="closeWelcomePopup()" class="text-gray-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-xs text-gray-200 mb-3 relative z-10">Hệ điều hành web đã sẵn sàng với giao diện Liquid Glass lỏng trong suốt cực đỉnh!</p>
+            <p id="popup-desc" class="text-xs text-gray-200 mb-3 relative z-10">Hệ điều hành web đã sẵn sàng với giao diện Liquid Glass lỏng trong suốt cực đỉnh!</p>
             <div class="flex gap-2 relative z-10">
                 <button onclick="openApp('guide'); closeWelcomePopup();" class="flex-1 py-1.5 liquid-glass-button rounded-lg text-xs font-semibold text-white transition">
                     <i class="fa-solid fa-book-open mr-1"></i> Hướng dẫn sử dụng
@@ -279,6 +389,7 @@
             </div>
         </div>
 
+        <!-- Context Menu -->
         <div id="context-menu" class="fixed hidden liquid-glass text-white border border-white/20 rounded-xl shadow-2xl py-1.5 w-52 text-xs z-[8000]">
             <div class="relative group">
                 <button class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between">
@@ -310,8 +421,9 @@
             </button>
         </div>
 
-        <div id="windows-container" class="absolute inset-0 pb-10 pointer-events-none z-20"></div>
+        <div id="windows-container" class="absolute inset-0 pb-12 pointer-events-none z-20"></div>
 
+        <!-- Task View Overlay -->
         <div id="task-view-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[7000] hidden p-8 flex flex-col">
             <div class="flex justify-between items-center text-white mb-6">
                 <h2 class="text-2xl font-light"><i class="fa-solid fa-table-cells-large mr-3"></i>Task View - Active Windows</h2>
@@ -320,12 +432,13 @@
             <div id="task-view-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-y-auto p-2"></div>
         </div>
 
-        <div id="start-menu" class="fixed bottom-12 left-2 w-80 md:w-96 h-[480px] liquid-glass rounded-2xl shadow-2xl z-[8000] hidden flex flex-col justify-between transition-all">
+        <!-- Start Menu -->
+        <div id="start-menu" class="fixed bottom-14 left-2 w-80 md:w-96 h-[480px] liquid-glass rounded-2xl shadow-2xl z-[8000] hidden flex flex-col justify-between transition-all">
             <div class="p-4 border-b border-white/20 flex items-center gap-3 relative z-10">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-lg">L</div>
+                <div id="start-menu-avatar" class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-lg">L</div>
                 <div>
-                    <div class="font-semibold text-sm">LongOS Administrator</div>
-                    <div class="text-xs text-blue-200">Windows 10 Liquid Glass Edition</div>
+                    <div id="start-menu-username" class="font-semibold text-sm">LongOS Administrator</div>
+                    <div id="start-menu-subtitle" class="text-xs text-blue-200">Windows 10 Liquid Glass Edition</div>
                 </div>
             </div>
 
@@ -355,7 +468,7 @@
             </div>
 
             <div class="p-3 bg-black/20 border-t border-white/20 flex justify-between items-center relative z-10">
-                <span class="text-xs text-gray-300">LongOS 2026 Liquid Edition</span>
+                <span id="footer-os-name" class="text-xs text-gray-300">LongOS 2026 Edition</span>
                 <div class="flex gap-2">
                     <button onclick="triggerReboot(event)" title="Restart System" class="w-8 h-8 rounded-lg liquid-glass-button flex items-center justify-center text-sm transition">
                         <i class="fa-solid fa-rotate-right text-amber-300"></i>
@@ -367,47 +480,50 @@
             </div>
         </div>
 
-        <div id="taskbar" class="w-full h-10 liquid-glass border-t border-white/20 flex items-center justify-between px-2 z-[8500] relative">
-            <div class="flex items-center h-full gap-1">
-                <button id="start-btn" onclick="toggleStartMenu(event)" class="h-8 px-3 rounded-lg liquid-glass-button flex items-center justify-center transition">
-                    <i class="fa-brands fa-windows text-blue-300 text-base pointer-events-none drop-shadow"></i>
-                </button>
+        <!-- Taskbar: Clock and Tray Icons fixed on the right -->
+        <div id="taskbar" class="w-full h-12 liquid-glass border-t border-white/20 flex items-center justify-between px-3 z-[8500] relative">
+            <div id="taskbar-inner-container" class="flex items-center h-full gap-1.5 w-full justify-between">
+                <!-- Left Taskbar Group -->
+                <div id="taskbar-left-group" class="flex items-center h-full gap-1.5">
+                    <button id="start-btn" onclick="toggleStartMenu(event)" class="h-9 px-3.5 rounded-xl liquid-glass-button flex items-center justify-center transition">
+                        <i id="start-btn-icon" class="fa-brands fa-windows text-blue-300 text-lg pointer-events-none drop-shadow"></i>
+                    </button>
 
-                <div class="relative h-8 flex items-center">
-                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 text-xs text-gray-300 pointer-events-none"></i>
-                    <input type="text" id="taskbar-search" onkeyup="handleSearch(event)" placeholder="Type here to search..." 
-                           class="bg-white/10 text-xs text-white pl-8 pr-3 py-1 rounded-lg w-36 focus:w-52 transition-all outline-none border border-white/20 focus:border-blue-400/80 backdrop-blur-md">
+                    <div class="relative h-9 flex items-center hidden sm:flex">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 text-xs text-gray-300 pointer-events-none"></i>
+                        <input type="text" id="taskbar-search" onkeyup="handleSearch(event)" placeholder="Type here to search..." 
+                               class="bg-white/10 text-xs text-white pl-8 pr-3 py-1.5 rounded-xl w-36 focus:w-56 transition-all outline-none border border-white/20 focus:border-blue-400/80 backdrop-blur-md">
+                    </div>
+
+                    <button onclick="toggleTaskView()" title="Task View" class="h-9 px-3 rounded-xl liquid-glass-button flex items-center justify-center text-gray-200 transition">
+                        <i class="fa-solid fa-table-cells-large text-sm"></i>
+                    </button>
+
+                    <div class="h-4 w-[1px] bg-white/20 mx-1"></div>
+
+                    <div id="taskbar-apps" class="flex items-center h-full gap-1"></div>
                 </div>
 
-                <button onclick="toggleTaskView()" title="Task View" class="h-8 px-2.5 rounded-lg liquid-glass-button flex items-center justify-center text-gray-200 transition">
-                    <i class="fa-solid fa-table-cells-large text-sm"></i>
-                </button>
-
-                <div class="h-4 w-[1px] bg-white/20 mx-1"></div>
-
-                <div id="taskbar-apps" class="flex items-center h-full gap-1"></div>
-            </div>
-
-            <div class="flex items-center h-full text-xs gap-3 pr-2 text-gray-200">
-                <button onclick="playNotificationSound()" title="Test Notification Sound" class="hover:text-white px-1"><i class="fa-solid fa-bell text-blue-300"></i></button>
-                <i class="fa-solid fa-volume-high"></i>
-                <i class="fa-solid fa-wifi text-xs"></i>
-                <div class="flex items-center gap-1">
-                    <i id="battery-icon" class="fa-solid fa-battery-full text-emerald-300"></i>
-                    <span id="battery-text" class="text-[11px]">100%</span>
-                </div>
-                <div class="text-right leading-tight">
-                    <div id="clock-time" class="font-semibold text-white drop-shadow-sm">00:00</div>
-                    <div id="clock-date" class="text-[10px] text-gray-300">01/01/2026</div>
+                <!-- Right Tray Icons & Clock (Strictly on the right) -->
+                <div class="flex items-center h-full text-xs gap-3 pl-3 pr-2 text-gray-200 flex-shrink-0 ml-auto">
+                    <button onclick="playNotificationSound()" title="Test Notification Sound" class="hover:text-white px-1 hidden sm:inline-block"><i class="fa-solid fa-bell text-blue-300"></i></button>
+                    <i class="fa-solid fa-volume-high hidden sm:inline-block"></i>
+                    <i class="fa-solid fa-wifi text-xs"></i>
+                    <div class="flex items-center gap-1">
+                        <i id="battery-icon" class="fa-solid fa-battery-full text-emerald-300"></i>
+                        <span id="battery-text" class="text-[11px] hidden sm:inline">100%</span>
+                    </div>
+                    <div class="text-right leading-tight border-l border-white/10 pl-3">
+                        <div id="clock-time" class="font-semibold text-white drop-shadow-sm">00:00</div>
+                        <div id="clock-date" class="text-[10px] text-gray-300 hidden sm:block">01/01/2026</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MEDIA PLAYER TEMPLATE -->
     <template id="tpl-mediaplayer">
         <div class="h-full bg-[#121212] text-white flex flex-col justify-between text-xs overflow-hidden select-none">
-            <!-- Screen Header Controls -->
             <div class="bg-[#1e1e1e] px-3 py-2 border-b border-white/10 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <input type="file" id="media-file-input" class="hidden" accept="audio/*,video/*" onchange="handleMediaImport(event)">
@@ -436,12 +552,10 @@
                 </div>
             </div>
 
-            <!-- Media Content Display (Video / Equalizer Canvas) -->
             <div class="flex-1 bg-black relative flex items-center justify-center overflow-hidden group">
                 <video id="media-video" class="w-full h-full object-contain hidden" ontimeupdate="updateMediaProgress()" onended="onMediaEnded()"></video>
                 <audio id="media-audio" class="hidden" ontimeupdate="updateMediaProgress()" onended="onMediaEnded()"></audio>
 
-                <!-- Audio Equalizer Visualizer Screen -->
                 <div id="audio-visualizer-container" class="flex flex-col items-center justify-center space-y-4">
                     <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-2xl animate-pulse">
                         <i id="visualizer-icon" class="fa-solid fa-music text-5xl text-white"></i>
@@ -450,16 +564,13 @@
                 </div>
             </div>
 
-            <!-- Bottom Media Player Controls -->
             <div class="bg-[#1a1a1a] p-3 border-t border-white/10 flex flex-col gap-2">
-                <!-- Seek Progress Bar -->
                 <div class="flex items-center gap-2 text-[11px] text-gray-400 font-mono">
                     <span id="media-current-time">00:00</span>
                     <input type="range" id="media-seek-bar" value="0" min="0" max="100" class="flex-1 cursor-pointer" oninput="seekMedia(this.value)">
                     <span id="media-duration">00:00</span>
                 </div>
 
-                <!-- Controls Buttons -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <button onclick="toggleMuteMedia()" class="text-gray-300 hover:text-white text-base px-1">
@@ -498,26 +609,17 @@
                 </div>
                 <div>
                     <h2 class="text-base font-bold">Giới thiệu & Hướng dẫn sử dụng toàn diện LongOS</h2>
-                    <p class="text-gray-400">Khám phá chi tiết hệ điều hành Windows 10 Web Edition, tính năng nâng cao và phím tắt.</p>
+                    <p class="text-gray-400">Khám phá chi tiết hệ điều hành Web Edition, tính năng nâng cao và chế độ Desktop / Mobile tự động.</p>
                 </div>
             </div>
 
             <div class="space-y-4">
                 <div class="bg-[#222] p-3.5 rounded-lg border border-white/10 space-y-2">
                     <h3 class="text-sm font-bold text-blue-400 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info"></i> Tổng quan về LongOS 10
+                        <i class="fa-solid fa-mobile-screen-button"></i> Tự động chuyển đổi Desktop & Mobile Mode
                     </h3>
                     <p class="text-gray-300 text-[11px] leading-relaxed">
-                        <strong>LongOS</strong> là một Hệ điều hành mô phỏng trên nền tảng Web tuyệt đẹp, mô phỏng giao diện Windows 10 Pro. Hệ thống tích hợp sẵn các công cụ tiện ích mạnh mẽ như Trình phát đa phương tiện (Media Player), Máy tính (Calculator), Command Prompt, Lucky Wheel, Task Manager và Hardware Diagnostics.
-                    </p>
-                </div>
-
-                <div class="space-y-2">
-                    <h3 class="text-sm font-bold text-purple-400 flex items-center gap-2">
-                        <i class="fa-solid fa-compact-disc"></i> Trình phát Media Player
-                    </h3>
-                    <p class="text-gray-300 text-[11px] bg-[#222] p-3 rounded-lg border border-white/10">
-                        Cho phép mở và xem trực tiếp các định dạng video/âm thanh cá nhân từ thiết bị của bạn hoặc lựa chọn các bản nhạc mẫu trực quan với sóng âm Equalizer sinh động.
+                        LongOS hiện tại tự động nhận diện thiết bị của bạn. Trên màn hình máy tính (Desktop), giao diện hiển thị cửa sổ đa nhiệm tự do, kéo thả icon thoải mái. Trên điện thoại (Mobile Mode), website tự động chuyển sang chế độ mobile tối ưu hóa trải nghiệm cảm ứng, các ứng dụng mở toàn màn hình.
                     </p>
                 </div>
             </div>
@@ -614,11 +716,6 @@ Mất lượt
                             <td class="text-emerald-400">Running</td>
                             <td>128 MB</td>
                         </tr>
-                        <tr class="border-b border-white/5">
-                            <td class="py-2 flex items-center gap-2"><i class="fa-solid fa-compact-disc text-purple-400"></i> Media Player</td>
-                            <td class="text-emerald-400">Active</td>
-                            <td>48 MB</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -640,8 +737,8 @@ Mất lượt
             <div class="flex items-center gap-3 border-b border-white/10 pb-3">
                 <i class="fa-brands fa-windows text-4xl text-blue-500"></i>
                 <div>
-                    <h2 class="text-base font-bold">LongOS 10 Web Edition</h2>
-                    <p class="text-gray-400">Version 22H2 (OS Build 19045.3803)</p>
+                    <h2 id="sysinfo-title" class="text-base font-bold">LongOS 10 Web Edition</h2>
+                    <p id="sysinfo-build" class="text-gray-400">Version 22H2 (OS Build 19045.3803)</p>
                 </div>
             </div>
             <div class="space-y-2">
@@ -749,13 +846,40 @@ Mất lượt
             sysinfo: { title: 'Windows Info', icon: 'fa-circle-info text-cyan-400', w: 480, h: 360, isPinned: true }
         };
 
+        let selectedOSVersion = 'os26'; // 'os26' or 'os27'
+        let bootCountdownTimer = 5;
+        let bootCountdownInterval = null;
+        let isMobileMode = false;
+
         let openWindows = {};
         let activeApp = null;
         let zIndexCounter = 100;
         let currentIconSize = 'medium';
         let iconCustomPositions = {};
 
-        /* Advanced Web Audio Synthesizer */
+        // Detect screen width / device type on load & resize
+        function checkDeviceMode() {
+            const isSmallScreen = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            isMobileMode = isSmallScreen;
+            
+            const indicator = document.getElementById('current-mode-indicator');
+            if (indicator) {
+                indicator.innerText = isMobileMode ? "Mobile Mode (Chế độ Điện thoại)" : "Desktop Mode (Chế độ Máy tính)";
+            }
+            
+            if (isMobileMode) {
+                document.body.classList.add('mobile-mode');
+            } else {
+                document.body.classList.remove('mobile-mode');
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            checkDeviceMode();
+            renderDesktopIcons();
+        });
+
+        // Audio Context setup
         let audioCtx = null;
         function getAudioContext() {
             if (!audioCtx) {
@@ -775,7 +899,9 @@ Mất lượt
                 masterGain.gain.setValueAtTime(1.5, now);
                 masterGain.connect(ctx.destination);
 
-                const freqs = [196.00, 293.66, 392.00, 493.88, 587.33];
+                const freqs = selectedOSVersion === 'os27' 
+                    ? [261.63, 329.63, 392.00, 523.25, 659.25] 
+                    : [196.00, 293.66, 392.00, 493.88, 587.33];
 
                 freqs.forEach((f, idx) => {
                     const osc = ctx.createOscillator();
@@ -887,35 +1013,112 @@ Mất lượt
         }
 
         window.onload = function() {
-            setTimeout(() => {
-                document.getElementById('bios-screen').classList.add('hidden');
-                const bootScreen = document.getElementById('boot-screen');
-                bootScreen.classList.remove('hidden');
+            checkDeviceMode();
+            startBootCountdown();
+        };
 
-                const taskbarEl = document.getElementById('taskbar');
-                const desktopIconsEl = document.getElementById('desktop-icons');
-                if (taskbarEl) taskbarEl.classList.add('taskbar-down');
+        function startBootCountdown() {
+            const timerEl = document.getElementById('countdown-timer');
+            bootCountdownInterval = setInterval(() => {
+                bootCountdownTimer--;
+                if (timerEl) timerEl.innerText = bootCountdownTimer;
+                if (bootCountdownTimer <= 0) {
+                    clearInterval(bootCountdownInterval);
+                    bootSelectedOS();
+                }
+            }, 1000);
+        }
+
+        function selectOS(version) {
+            selectedOSVersion = version;
+            clearInterval(bootCountdownInterval);
+            const card26 = document.getElementById('card-os26');
+            const card27 = document.getElementById('card-os27');
+            if (version === 'os26') {
+                card26.classList.add('selected');
+                card27.classList.remove('selected');
+            } else {
+                card27.classList.add('selected');
+                card26.classList.remove('selected');
+            }
+            playSound('click');
+        }
+
+        function bootSelectedOS() {
+            clearInterval(bootCountdownInterval);
+            checkDeviceMode();
+            const chooser = document.getElementById('os-chooser');
+            if (chooser) chooser.classList.add('hidden');
+
+            const desktop = document.getElementById('desktop');
+            const taskbar = document.getElementById('taskbar');
+            const startMenu = document.getElementById('start-menu');
+            const taskbarInner = document.getElementById('taskbar-inner-container');
+            const taskbarLeftGroup = document.getElementById('taskbar-left-group');
+
+            if (selectedOSVersion === 'os27') {
+                desktop.classList.remove('win10-desktop');
+                desktop.classList.add('win11-desktop');
+                taskbar.className = 'w-full h-12 win11-taskbar border-t border-white/15 flex items-center justify-between px-3 z-[8500] relative';
+                
+                if (!isMobileMode) {
+                    taskbarInner.className = "flex items-center h-full gap-1.5 w-full justify-between relative";
+                    taskbarLeftGroup.className = "absolute left-1/2 -translate-x-1/2 flex items-center h-full gap-1.5 bg-black/20 px-2 py-1 rounded-xl backdrop-blur-md border border-white/10";
+                }
+                
+                startMenu.className = isMobileMode 
+                    ? 'fixed bottom-14 left-2 right-2 h-[460px] win11-mica rounded-2xl shadow-2xl z-[8000] hidden flex flex-col justify-between transition-all'
+                    : 'fixed bottom-14 left-1/2 -translate-x-1/2 w-96 h-[500px] win11-mica rounded-2xl shadow-2xl z-[8000] hidden flex flex-col justify-between transition-all';
+                
+                const startBtnIcon = document.getElementById('start-btn-icon');
+                if (startBtnIcon) startBtnIcon.className = "fa-brands fa-windows text-cyan-300 text-lg pointer-events-none drop-shadow animate-pulse";
+                
+                document.getElementById('popup-title').innerText = "Chào mừng đến với LongOS 27!";
+                document.getElementById('popup-desc').innerText = "Windows 11 OS 27 với hiệu ứng Mica lỏng trong suốt và thanh tác vụ căn giữa đẳng cấp!";
+                document.getElementById('start-menu-subtitle').innerText = "Windows 11 Fluent Edition";
+                document.getElementById('footer-os-name').innerText = "LongOS 27 Next-Gen";
+            } else {
+                desktop.classList.remove('win11-desktop');
+                desktop.classList.add('win10-desktop');
+                if (isMobileMode) {
+                    startMenu.className = 'fixed bottom-14 left-2 right-2 h-[460px] liquid-glass rounded-2xl shadow-2xl z-[8000] hidden flex flex-col justify-between transition-all';
+                }
+            }
+
+            setTimeout(() => {
+                const bios = document.getElementById('bios-screen');
+                if (bios) bios.classList.remove('hidden');
 
                 setTimeout(() => {
-                    bootScreen.classList.add('boot-zoom-out');
-                    renderDesktopIcons();
-                    renderTaskbar();
-                    startClock();
-                    initBattery();
-                    playStartupSound();
+                    if (bios) bios.classList.add('hidden');
+                    const bootScreen = document.getElementById('boot-screen');
+                    bootScreen.classList.remove('hidden');
+
+                    const taskbarEl = document.getElementById('taskbar');
+                    const desktopIconsEl = document.getElementById('desktop-icons');
+                    if (taskbarEl) taskbarEl.classList.add('taskbar-down');
 
                     setTimeout(() => {
-                        bootScreen.classList.add('hidden');
-                        bootScreen.classList.remove('boot-zoom-out');
-                        
-                        if (taskbarEl) taskbarEl.classList.remove('taskbar-down');
-                        if (desktopIconsEl) desktopIconsEl.classList.add('loaded');
+                        bootScreen.classList.add('boot-zoom-out');
+                        renderDesktopIcons();
+                        renderTaskbar();
+                        startClock();
+                        initBattery();
+                        playStartupSound();
 
-                        setTimeout(() => { showWelcomePopup(); }, 800);
-                    }, 1200);
-                }, 1500);
-            }, 1000);
-        };
+                        setTimeout(() => {
+                            bootScreen.classList.add('hidden');
+                            bootScreen.classList.remove('boot-zoom-out');
+                            
+                            if (taskbarEl) taskbarEl.classList.remove('taskbar-down');
+                            if (desktopIconsEl) desktopIconsEl.classList.add('loaded');
+
+                            setTimeout(() => { showWelcomePopup(); }, 800);
+                        }, 1200);
+                    }, 1500);
+                }, 800);
+            }, 200);
+        }
 
         function showWelcomePopup() {
             const popup = document.getElementById('welcome-popup');
@@ -935,8 +1138,6 @@ Mất lượt
             }
         }
 
-        window.addEventListener('resize', () => { renderDesktopIcons(); });
-
         function setIconSize(size) {
             currentIconSize = size;
             ['large', 'medium', 'small'].forEach(s => {
@@ -955,8 +1156,25 @@ Mất lượt
             container.innerHTML = '';
 
             const keys = Object.keys(ALL_APPS);
-            const desktopHeight = window.innerHeight - 40;
+            
+            if (isMobileMode) {
+                keys.forEach((key) => {
+                    const app = ALL_APPS[key];
+                    const btn = document.createElement('div');
+                    btn.id = `desktop-icon-${key}`;
+                    btn.className = `desktop-icon-btn flex flex-col items-center justify-center p-2 rounded-xl active:scale-95 group text-center`;
+                    btn.onclick = () => openApp(key);
 
+                    btn.innerHTML = `
+                        <i class="fa-solid ${app.icon} text-3xl mb-1 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-white text-[11px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-tight line-clamp-1 px-1 pointer-events-none">${app.title}</span>
+                    `;
+                    container.appendChild(btn);
+                });
+                return;
+            }
+
+            const desktopHeight = window.innerHeight - 50;
             let iconDimensions = { w: 80, h: 80, gap: 16 };
             if (currentIconSize === 'large') iconDimensions = { w: 96, h: 96, gap: 20 };
             else if (currentIconSize === 'small') iconDimensions = { w: 64, h: 64, gap: 12 };
@@ -985,6 +1203,7 @@ Mất lượt
                 btn.style.left = `${leftPos}px`;
                 btn.style.top = `${topPos}px`;
                 btn.ondblclick = () => openApp(key);
+                btn.onclick = () => { if (isMobileMode) openApp(key); };
 
                 btn.innerHTML = `
                     <i class="fa-solid ${app.icon} mb-1 group-hover:scale-110 transition-transform"></i>
@@ -997,11 +1216,12 @@ Mất lượt
         }
 
         function makeIconDraggable(element, key) {
+            if (isMobileMode) return;
             let isDragging = false;
             let startX, startY, initialLeft, initialTop;
 
             element.addEventListener('pointerdown', (e) => {
-                if (e.button !== 0) return;
+                if (e.button !== 0 || isMobileMode) return;
                 isDragging = false;
                 startX = e.clientX;
                 startY = e.clientY;
@@ -1054,25 +1274,34 @@ Mất lượt
 
             const win = document.createElement('div');
             win.id = `win-${key}`;
-            win.className = `app-window opening absolute liquid-glass rounded-2xl overflow-hidden flex flex-col pointer-events-auto`;
-            win.style.width = `${app.w}px`;
-            win.style.height = `${app.h}px`;
-            win.style.top = `${60 + Object.keys(openWindows).length * 25}px`;
-            win.style.left = `${100 + Object.keys(openWindows).length * 25}px`;
+            win.className = `app-window opening absolute ${selectedOSVersion === 'os27' ? 'win11-mica rounded-2xl' : 'liquid-glass rounded-2xl'} overflow-hidden flex flex-col pointer-events-auto`;
+            
+            if (isMobileMode) {
+                win.style.width = '100vw';
+                win.style.height = 'calc(100vh - 48px)';
+                win.style.top = '0px';
+                win.style.left = '0px';
+                win.style.borderRadius = '0px';
+            } else {
+                win.style.width = `${app.w}px`;
+                win.style.height = `${app.h}px`;
+                win.style.top = `${60 + Object.keys(openWindows).length * 25}px`;
+                win.style.left = `${100 + Object.keys(openWindows).length * 25}px`;
+            }
             win.style.zIndex = ++zIndexCounter;
 
             win.onmousedown = () => focusWindow(key);
 
             win.innerHTML = `
-                <div class="h-9 liquid-glass-header flex items-center justify-between px-3 cursor-move select-none relative z-10" onmousedown="startDrag(event, '${key}')">
+                <div class="h-10 ${selectedOSVersion === 'os27' ? 'bg-white/5 border-b border-white/10' : 'liquid-glass-header'} flex items-center justify-between px-3 cursor-move select-none relative z-10" onmousedown="startDrag(event, '${key}')">
                     <div class="flex items-center gap-2 text-xs font-semibold text-white drop-shadow">
                         <i class="fa-solid ${app.icon}"></i>
                         <span>${app.title}</span>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button onclick="minimizeWindow('${key}')" class="w-6 h-6 hover:bg-white/20 rounded-md flex items-center justify-center text-xs transition"><i class="fa-solid fa-minus"></i></button>
-                        <button onclick="toggleMaximize('${key}')" class="w-6 h-6 hover:bg-white/20 rounded-md flex items-center justify-center text-xs transition"><i class="fa-regular fa-square"></i></button>
-                        <button onclick="closeWindow('${key}')" class="w-6 h-6 hover:bg-red-500/80 rounded-md flex items-center justify-center text-xs transition"><i class="fa-solid fa-xmark"></i></button>
+                        <button onclick="minimizeWindow('${key}')" class="w-7 h-7 hover:bg-white/20 rounded-lg flex items-center justify-center text-xs transition"><i class="fa-solid fa-minus"></i></button>
+                        <button onclick="toggleMaximize('${key}')" class="w-7 h-7 hover:bg-white/20 rounded-lg flex items-center justify-center text-xs transition"><i class="fa-regular fa-square"></i></button>
+                        <button onclick="closeWindow('${key}')" class="w-7 h-7 hover:bg-red-500/80 rounded-lg flex items-center justify-center text-xs transition"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
                 <div class="flex-1 overflow-hidden relative z-10" id="body-${key}"></div>
@@ -1084,7 +1313,7 @@ Mất lượt
                 document.getElementById(`body-${key}`).appendChild(template.content.cloneNode(true));
             }
 
-            openWindows[key] = { isMinimized: false, isMaximized: false };
+            openWindows[key] = { isMinimized: false, isMaximized: isMobileMode };
             focusWindow(key);
             renderTaskbar();
 
@@ -1094,7 +1323,7 @@ Mất lượt
             if (key === 'hwtest') initHardwareTester();
         }
 
-        let activeMediaMode = 'none'; // 'audio' or 'video'
+        let activeMediaMode = 'none';
         let visualizerAnimFrame = null;
 
         function initMediaPlayer() {
@@ -1109,7 +1338,6 @@ Mất lượt
             const trackTitle = document.getElementById('media-track-title');
 
             if (!video || !audio) return;
-
             stopMedia();
 
             if (type === 'sample_video') {
@@ -1159,7 +1387,6 @@ Mất lượt
                 visualizerContainer.classList.remove('hidden');
                 startEqualizerAnim();
             }
-
             togglePlayMedia();
         }
 
@@ -1201,7 +1428,6 @@ Mất lượt
             const timeDuration = document.getElementById('media-duration');
 
             if (!media) return;
-
             if (!isNaN(media.duration)) {
                 if (seekBar) seekBar.value = (media.currentTime / media.duration) * 100;
                 if (timeDuration) timeDuration.innerText = formatTime(media.duration);
@@ -1447,16 +1673,18 @@ Mất lượt
             const win = document.getElementById(`win-${key}`);
             if (!win) return;
             if (openWindows[key].isMaximized) {
-                win.style.top = '80px'; win.style.left = '100px'; win.style.width = `${ALL_APPS[key].w}px`; win.style.height = `${ALL_APPS[key].h}px`;
+                if (!isMobileMode) {
+                    win.style.top = '80px'; win.style.left = '100px'; win.style.width = `${ALL_APPS[key].w}px`; win.style.height = `${ALL_APPS[key].h}px`;
+                }
                 openWindows[key].isMaximized = false;
             } else {
-                win.style.top = '0px'; win.style.left = '0px'; win.style.width = '100vw'; win.style.height = 'calc(100vh - 40px)';
+                win.style.top = '0px'; win.style.left = '0px'; win.style.width = '100vw'; win.style.height = 'calc(100vh - 48px)';
                 openWindows[key].isMaximized = true;
             }
         }
 
         function startDrag(e, key) {
-            if (openWindows[key].isMaximized) return;
+            if (openWindows[key].isMaximized || isMobileMode) return;
             const win = document.getElementById(`win-${key}`);
             let shiftX = e.clientX - win.getBoundingClientRect().left;
             let shiftY = e.clientY - win.getBoundingClientRect().top;
@@ -1476,14 +1704,14 @@ Mất lượt
                 const isOpen = !!openWindows[key];
                 const isActive = activeApp === key && isOpen && !openWindows[key].isMinimized;
                 const btn = document.createElement('button');
-                btn.className = `h-8 px-3 rounded-lg flex items-center gap-2 text-xs transition relative ${isActive ? 'bg-white/30 border border-white/40 shadow-inner' : 'liquid-glass-button'}`;
+                btn.className = `h-9 px-2.5 sm:px-3 rounded-xl flex items-center gap-2 text-xs transition relative ${isActive ? 'bg-white/30 border border-white/40 shadow-inner' : (selectedOSVersion === 'os27' ? 'win11-button' : 'liquid-glass-button')}`;
                 btn.onclick = () => {
                     if (!isOpen) openApp(key);
                     else if (openWindows[key].isMinimized) restoreWindow(key);
                     else if (activeApp === key) minimizeWindow(key);
                     else focusWindow(key);
                 };
-                btn.innerHTML = `<i class="fa-solid ${app.icon} text-sm drop-shadow"></i>${isOpen ? `<div class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 ${isActive ? 'bg-blue-300' : 'bg-gray-300'} rounded-full"></div>` : ''}`;
+                btn.innerHTML = `<i class="fa-solid ${app.icon} text-sm drop-shadow"></i>${isOpen ? `<div class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 ${isActive ? (selectedOSVersion === 'os27' ? 'bg-cyan-400' : 'bg-blue-300') : 'bg-gray-300'} rounded-full"></div>` : ''}`;
                 container.appendChild(btn);
             });
         }
@@ -1522,11 +1750,8 @@ Mất lượt
         function triggerShutdown(e) {
             if (e) e.stopPropagation();
             document.getElementById('start-menu').classList.add('hidden');
-            
-            // Step 1: Slide down taskbar
             document.getElementById('taskbar').classList.add('taskbar-down');
             
-            // Step 2: Hide desktop icons shortly after taskbar starts moving down
             setTimeout(() => {
                 const iconsEl = document.getElementById('desktop-icons');
                 if (iconsEl) {
@@ -1535,7 +1760,6 @@ Mất lượt
                 }
             }, 180);
 
-            // Step 3: Display shutdown screen after icons finish fading out
             setTimeout(() => {
                 const screen = document.getElementById('shutdown-screen');
                 document.getElementById('shutdown-text').innerText = "Shutting down...";
@@ -1557,183 +1781,17 @@ Mất lượt
         function triggerReboot(e) {
             if (e) e.stopPropagation();
             document.getElementById('start-menu').classList.add('hidden');
-            
-            // Step 1: Slide down taskbar
             document.getElementById('taskbar').classList.add('taskbar-down');
-            
-            // Step 2: Hide desktop icons
-            setTimeout(() => {
-                const iconsEl = document.getElementById('desktop-icons');
-                if (iconsEl) {
-                    iconsEl.classList.remove('loaded');
-                    iconsEl.classList.add('opacity-0', 'scale-95');
-                }
-            }, 180);
-
-            // Step 3: Show restart screen
-            setTimeout(() => {
-                const screen = document.getElementById('shutdown-screen');
-                document.getElementById('shutdown-text').innerText = "Restarting...";
-                screen.classList.remove('hidden');
-                setTimeout(() => screen.classList.remove('opacity-0'), 50);
-
-                playShutdownSound();
-
-                setTimeout(() => { location.reload(); }, 1200);
-            }, 500);
-        }
-
-        function triggerReboot(e) {
-            if (e) e.stopPropagation();
-            document.getElementById('start-menu').classList.add('hidden');
-            document.getElementById('taskbar').classList.add('taskbar-down');
-            document.getElementById('desktop-icons').classList.add('opacity-0');
-
-            const screen = document.getElementById('shutdown-screen');
-            document.getElementById('shutdown-text').innerText = "Restarting...";
-            screen.classList.remove('hidden');
-            setTimeout(() => screen.classList.remove('opacity-0'), 50);
-
-            playShutdownSound();
-
-            setTimeout(() => { location.reload(); }, 1200);
-        }
-
-        function powerOn() { location.reload(); }
-
-        const wheelColors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
-        let currentWheelAngle = 0;
-
-        function drawWheel() {
-            const canvas = document.getElementById('wheel-canvas');
-            const textarea = document.getElementById('wheel-input');
-            if (!canvas || !textarea) return;
-            const ctx = canvas.getContext('2d');
-            const items = textarea.value.split('\n').filter(line => line.trim() !== '');
-            if (items.length === 0) return;
-            const numItems = items.length;
-            const sliceAngle = (2 * Math.PI) / numItems;
-            const radius = canvas.width / 2;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < numItems; i++) {
-                const angle = currentWheelAngle + i * sliceAngle;
-                ctx.beginPath();
-                ctx.fillStyle = wheelColors[i % wheelColors.length];
-                ctx.moveTo(radius, radius);
-                ctx.arc(radius, radius, radius - 4, angle, angle + sliceAngle);
-                ctx.closePath();
-                ctx.fill();
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = "rgba(255,255,255,0.3)";
-                ctx.stroke();
-                ctx.save();
-                ctx.translate(radius, radius);
-                ctx.rotate(angle + sliceAngle / 2);
-                ctx.textAlign = "right";
-                ctx.fillStyle = "#ffffff";
-                ctx.font = "bold 15px Segoe UI";
-                ctx.fillText(items[i], radius - 35, 5);
-                ctx.restore();
-            }
-        }
-
-        function spinWheel() {
-            const textarea = document.getElementById('wheel-input');
-            const resultEl = document.getElementById('wheel-result');
-            const btn = document.getElementById('spin-btn');
-            if (!textarea) return;
-            const items = textarea.value.split('\n').filter(line => line.trim() !== '');
-            if (items.length === 0) return;
-            btn.disabled = true;
-            resultEl.innerHTML = `<span class="animate-pulse text-yellow-300">⏳ Đang quay...</span>`;
-            const totalDegrees = (6 + Math.random() * 6) * 360;
-            const duration = 4500;
-            const startTime = performance.now();
-            const startAngle = currentWheelAngle;
-            function animateSpin(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easeOut = 1 - Math.pow(1 - progress, 3);
-                currentWheelAngle = startAngle + (totalDegrees * Math.PI / 180) * easeOut;
-                drawWheel();
-                if (Math.random() < 0.25) playSound('spin');
-                if (progress < 1) { requestAnimationFrame(animateSpin); }
-                else {
-                    btn.disabled = false;
-                    let currentRot = currentWheelAngle % (2 * Math.PI);
-                    if (currentRot < 0) currentRot += 2 * Math.PI;
-                    let arrowAngle = (3 * Math.PI / 2 - currentRot) % (2 * Math.PI);
-                    if (arrowAngle < 0) arrowAngle += 2 * Math.PI;
-                    const selectedIdx = Math.floor(arrowAngle / ((2 * Math.PI) / items.length));
-                    const winningItem = items[selectedIdx] || items[0];
-                    resultEl.innerHTML = `🏆 <span class="text-2xl font-black text-yellow-300 animate-bounce">${winningItem}</span>`;
-                    playSound('win');
-                    playNotificationSound();
-                }
-            }
-            requestAnimationFrame(animateSpin);
-        }
-
-        let calcExpr = '';
-        function calcInput(val) {
-            const screen = document.getElementById('calc-screen');
-            if (val === 'C' || val === 'CE') calcExpr = '';
-            else if (val === 'back') calcExpr = calcExpr.slice(0, -1);
-            else if (val === '=') {
-                try { calcExpr = eval(calcExpr.replace(/×/g, '*').replace(/÷/g, '/')).toString(); }
-                catch { calcExpr = 'Error'; }
-            } else { calcExpr += val; }
-            if (screen) screen.innerText = calcExpr || '0';
-        }
-
-        function focusCmdInput() { const input = document.getElementById('cmd-input'); if (input) input.focus(); }
-        function handleCmd(e) {
-            if (e.key === 'Enter') {
-                const input = e.target;
-                const cmd = input.value.trim().toLowerCase();
-                const output = document.getElementById('cmd-output');
-                const line = document.createElement('div');
-                line.innerHTML = `<span class="text-white">C:\\Users\\Administrator&gt;</span> ${input.value}`;
-                output.appendChild(line);
-                const res = document.createElement('div');
-                res.className = "text-gray-300 mb-1";
-                if (cmd === 'help') res.innerText = 'Commands: help, ver, cls, date, time, systeminfo';
-                else if (cmd === 'ver') res.innerText = 'LongOS [Version 10.0.19045.3803]';
-                else if (cmd === 'cls') output.innerHTML = '';
-                else if (cmd === 'date') res.innerText = new Date().toLocaleDateString();
-                else if (cmd === 'time') res.innerText = new Date().toLocaleTimeString();
-                else if (cmd === 'systeminfo') res.innerText = `OS: LongOS 10 Web Edition | RAM: 8 GB`;
-                else if (cmd !== '') res.innerText = `'${cmd}' is not recognized.`;
-                if (cmd !== 'cls') output.appendChild(res);
-                input.value = '';
-                const cmdBox = document.getElementById('cmd-container');
-                if (cmdBox) cmdBox.scrollTop = cmdBox.scrollHeight;
-            }
-        }
-
-        function switchTaskTab(tab) {
-            const procTab = document.getElementById('task-tab-processes');
-            const perfTab = document.getElementById('task-tab-performance');
-            if (tab === 'processes') { procTab.classList.remove('hidden'); perfTab.classList.add('hidden'); }
-            else { procTab.classList.add('hidden'); perfTab.classList.remove('hidden'); }
-        }
-
-        function loadSysInfo() {
-            const sysRam = document.getElementById('sys-ram');
-            const sysCpu = document.getElementById('sys-cpu');
-            const sysScreen = document.getElementById('sys-screen');
-            if (sysRam) sysRam.innerText = '8 GB RAM';
-            if (sysCpu) sysCpu.innerText = `${navigator.hardwareConcurrency || 8} Threads`;
-            if (sysScreen) sysScreen.innerText = `${window.innerWidth} x ${window.innerHeight}`;
+            setTimeout(() => { location.reload(); }, 800);
         }
 
         function startClock() {
             function update() {
-                const clockTime = document.getElementById('clock-time');
-                const clockDate = document.getElementById('clock-date');
                 const now = new Date();
-                if (clockTime) clockTime.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                if (clockDate) clockDate.innerText = now.toLocaleDateString();
+                const timeEl = document.getElementById('clock-time');
+                const dateEl = document.getElementById('clock-date');
+                if (timeEl) timeEl.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                if (dateEl) dateEl.innerText = now.toLocaleDateString();
             }
             update();
             setInterval(update, 1000);
@@ -1743,10 +1801,17 @@ Mất lượt
             if (navigator.getBattery) {
                 navigator.getBattery().then(bat => {
                     function updateBat() {
-                        const batText = document.getElementById('battery-text');
-                        if (batText) batText.innerText = `${Math.round(bat.level * 100)}%`;
+                        const pct = Math.round(bat.level * 100);
+                        const text = document.getElementById('battery-text');
+                        const icon = document.getElementById('battery-icon');
+                        if (text) text.innerText = `${pct}%`;
+                        if (icon) {
+                            icon.className = bat.charging ? "fa-solid fa-battery-bolt text-amber-300" : "fa-solid fa-battery-full text-emerald-300";
+                        }
                     }
                     updateBat();
+                    bat.addEventListener('levelchange', updateBat);
+                    bat.addEventListener('chargingchange', updateBat);
                 });
             }
         }
