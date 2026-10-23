@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LongOS - Operating System Boot Manager</title>
+    <title>PPLongOS - Operating System Boot Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -255,10 +255,10 @@
         <div class="max-w-xl w-full text-center space-y-6">
             <div class="space-y-2">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-2 shadow-lg">
-                    <i class="fa-solid fa-microchip animate-pulse"></i> LongOS Boot Manager v2026.2
+                    <i class="fa-solid fa-microchip animate-pulse"></i> PLongOS Boot Manager v2026.2
                 </div>
                 <h1 class="text-3xl md:text-5xl font-light tracking-tight text-white drop-shadow-md">Choose an operating system</h1>
-                <p class="text-xs md:text-sm text-gray-400">Select the version of LongOS to start.</p>
+                <p class="text-xs md:text-sm text-gray-400">Select the version of PLongOS to start.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
@@ -313,7 +313,7 @@
     <!-- BIOS BOOT SCREEN -->
     <div id="bios-screen" class="fixed inset-0 bg-black text-white font-mono z-[99995] hidden flex items-center justify-center">
         <div class="text-4xl md:text-6xl font-bold tracking-widest text-gray-100 flex items-center">
-            LongOS<span id="bios-cursor" class="animate-pulse text-indigo-400">-</span>
+            PLongOS<span id="bios-cursor" class="animate-pulse text-indigo-400">-</span>
         </div>
     </div>
 
@@ -372,7 +372,7 @@
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 backdrop-blur-md flex items-center justify-center font-bold text-white text-xs shadow-lg">L</div>
                     <div>
-                        <h4 id="popup-title" class="font-bold text-sm text-white drop-shadow">Chào mừng đến với LongOS!</h4>
+                        <h4 id="popup-title" class="font-bold text-sm text-white drop-shadow">Chào mừng đến với PLongOS!</h4>
                         <span class="text-[10px] text-gray-300">Vừa xong • Next-Gen Edition</span>
                     </div>
                 </div>
@@ -401,7 +401,7 @@
             <div class="p-4 border-b border-white/20 flex items-center gap-3 relative z-10">
                 <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-lg shadow-lg">L</div>
                 <div>
-                    <div class="font-semibold text-sm">LongOS Administrator</div>
+                    <div class="font-semibold text-sm">PLongOS Administrator</div>
                     <div id="start-menu-subtitle" class="text-xs text-indigo-200">Windows Liquid Glass Edition</div>
                 </div>
             </div>
@@ -435,7 +435,7 @@
             </div>
 
             <div class="p-3 bg-black/20 border-t border-white/20 flex justify-between items-center relative z-10">
-                <span id="footer-os-name" class="text-xs text-gray-300">LongOS 2026 Edition</span>
+                <span id="footer-os-name" class="text-xs text-gray-300">PLongOS 2026 Edition</span>
                 <div class="flex gap-2">
                     <button onclick="triggerReboot(event)" title="Restart System" class="w-8 h-8 rounded-lg liquid-glass-button flex items-center justify-center text-sm transition">
                         <i class="fa-solid fa-rotate-right text-amber-300"></i>
@@ -586,7 +586,7 @@
                     <i class="fa-solid fa-book-open text-white"></i>
                 </div>
                 <div>
-                    <h2 class="text-base font-bold">Giới thiệu & Hướng dẫn sử dụng toàn diện LongOS</h2>
+                    <h2 class="text-base font-bold">Giới thiệu & Hướng dẫn sử dụng toàn diện PLongOS</h2>
                     <p class="text-gray-400">Khám phá chi tiết hệ điều hành Web Edition, Taskbar Windows 11 căn giữa và hiệu ứng siêu đẹp.</p>
                 </div>
             </div>
@@ -632,7 +632,7 @@
 
     <template id="tpl-cmd">
         <div id="cmd-container" onclick="focusCmdInput()" class="h-full bg-black text-green-400 font-mono text-xs p-3 overflow-y-auto flex flex-col">
-            <div class="mb-2">LongOS Command Prompt [Version 10.0.19045.3803]<br>(c) LongOS Corporation. All rights reserved. Type "help" for commands.</div>
+            <div class="mb-2">PLongOS Command Prompt [Version 10.0.19045.3803]<br>(c) PLongOS Corporation. All rights reserved. Type "help" for commands.</div>
             <div id="cmd-output"></div>
             <div class="flex items-center">
                 <span>C:\Users\Administrator&gt;&nbsp;</span>
@@ -684,7 +684,7 @@ Mất lượt
                     </thead>
                     <tbody>
                         <tr class="border-b border-white/5">
-                            <td class="py-2 flex items-center gap-2"><i class="fa-solid fa-window-maximize text-indigo-400"></i> LongOS Core System</td>
+                            <td class="py-2 flex items-center gap-2"><i class="fa-solid fa-window-maximize text-indigo-400"></i> PLongOS Core System</td>
                             <td class="text-emerald-400">Running</td>
                             <td>134 MB</td>
                         </tr>
@@ -703,7 +703,7 @@ Mất lượt
             </div>
             <div class="p-4 flex-1 overflow-y-auto space-y-3">
                 <div class="bg-[#22222c] p-4 rounded border border-white/10 space-y-2">
-                    <h3 class="font-bold text-sm text-amber-400">Hệ thống phần cứng LongOS</h3>
+                    <h3 class="font-bold text-sm text-amber-400">Hệ thống phần cứng PLongOS</h3>
                     <p class="text-gray-300">Tất cả các thành phần cảm ứng, bộ nhớ LocalStorage và hiển thị hoạt động hoàn hảo.</p>
                 </div>
             </div>
@@ -800,7 +800,7 @@ Mất lượt
         };
 
         function applyStoredWallpaper() {
-            const savedWallpaper = localStorage.getItem('longos_custom_wallpaper');
+            const savedWallpaper = localStorage.getItem('PLongOS_custom_wallpaper');
             const desktop = document.getElementById('desktop');
             if (!desktop) return;
             if (savedWallpaper) {
@@ -817,7 +817,7 @@ Mất lượt
             reader.onload = function(e) {
                 const base64Data = e.target.result;
                 try {
-                    localStorage.setItem('longos_custom_wallpaper', base64Data);
+                    localStorage.setItem('PLongOS_custom_wallpaper', base64Data);
                     applyStoredWallpaper();
                     showNotificationBanner("Đã lưu hình nền vào LocalStorage thành công!");
                 } catch (err) {
@@ -832,7 +832,7 @@ Mất lượt
         }
 
         function resetDefaultWallpaper() {
-            localStorage.removeItem('longos_custom_wallpaper');
+            localStorage.removeItem('PLongOS_custom_wallpaper');
             applyStoredWallpaper();
             showNotificationBanner("Đã khôi phục hình nền mặc định!");
         }
@@ -1004,7 +1004,7 @@ Mất lượt
                 if (effectsLayer) effectsLayer.classList.add('hidden');
                 if (startBtnIcon) startBtnIcon.className = "fa-brands fa-windows text-blue-300 text-lg pointer-events-none drop-shadow";
                 if (subtitle) subtitle.innerText = "Windows Liquid Glass Edition";
-                if (footerName) footerName.innerText = "LongOS 2026 Edition";
+                if (footerName) footerName.innerText = "PLongOS 2026 Edition";
             }
             renderTaskbarApps();
         }
@@ -1317,7 +1317,7 @@ Mất lượt
             e.stopPropagation();
             closeStartMenu();
             executeSystemAction('Đang tắt máy...', 'Thiết bị sẽ tắt nguồn.', '<i class="fa-solid fa-power-off"></i>', () => {
-                document.body.innerHTML = `<div class="w-screen h-screen bg-black flex items-center justify-center text-white font-light text-2xl tracking-widest">LongOS Shutdown.</div>`;
+                document.body.innerHTML = `<div class="w-screen h-screen bg-black flex items-center justify-center text-white font-light text-2xl tracking-widest">PLongOS Shutdown.</div>`;
             });
         }
 
@@ -1513,7 +1513,7 @@ Mất lượt
                 } else if (val.toLowerCase() === 'ver') {
                     const res = document.createElement('div');
                     res.className = 'text-gray-300 mb-2';
-                    res.innerHTML = 'LongOS Windows 11 OS 27 Enterprise Edition';
+                    res.innerHTML = 'PLongOS Windows 11 OS 27 Enterprise Edition';
                     output.appendChild(res);
                 } else if (val.toLowerCase() === 'date') {
                     const res = document.createElement('div');
