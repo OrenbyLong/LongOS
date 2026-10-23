@@ -32,12 +32,7 @@
 ## 📦 Getting Started & Deployment
 
 To run LongOS locally or deploy it online via **GitHub Pages**:
-
-1. Clone or download this repository.
-2. Rename your main source file to `index.html`.
-3. Push the file to your GitHub repository.
-4. Go to your repository **Settings** -> **Pages** -> Set the source branch to `main` to get your public live link instantly!
-
+You should click the link github pages
 ---
 
 ## 📄 License & Credits
