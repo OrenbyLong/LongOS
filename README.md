@@ -1,6 +1,6 @@
-# 🚀 LongOS - Web-based Operating System (Next-Gen OS 27 Edition)
+# 🚀 PLongOS - Web-based Operating System (Next-Gen OS 27 Edition)
 
-**LongOS** is an advanced, high-performance web-based operating system simulator built with pure HTML5, Tailwind CSS, and vanilla JavaScript. It blends the classic productivity of Windows 10 with the sleek, next-generation Fluent Design, centered Windows 11 Taskbar, and glowing Mica transparency effects of Windows 11 OS 27.
+**PLongOS** is an advanced, high-performance web-based operating system simulator built with pure HTML5, Tailwind CSS, and vanilla JavaScript. It blends the classic productivity of Windows 10 with the sleek, next-generation Fluent Design, centered Windows 11 Taskbar, and glowing Mica transparency effects of Windows 11 OS 27.
 
 ---
 
