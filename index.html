@@ -100,13 +100,13 @@
         }
 
         #desktop.win10-desktop {
-            background-image: url('https://ia903107.us.archive.org/16/items/wallpapersprunkiorenxpinki/Sprunki%20GrayOC%20x%20Wendabow%20see%20board%20write%20LongOS.png');
+            background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
         }
 
         #desktop.win11-desktop {
-            background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop');
+            background-image: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
         }
@@ -141,7 +141,7 @@
             top: 0 !important;
             left: 0 !important;
             width: 100vw !important;
-            height: calc(100vh - 56px) !important;
+            height: calc(100vh - 48px) !important;
             border-radius: 0 !important;
             border: none !important;
         }
@@ -275,7 +275,7 @@
     <div id="os-chooser" class="fixed inset-0 flex flex-col items-center justify-center p-6">
         <div class="max-w-xl w-full text-center space-y-8">
             <div class="space-y-2">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-2">
                     <i class="fa-solid fa-microchip"></i> LongOS Boot Manager v2026
                 </div>
                 <h1 class="text-3xl md:text-5xl font-light tracking-tight text-white">Choose an operating system</h1>
@@ -283,7 +283,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                <!-- Option 1: Windows 10 OS 26 -->
                 <div id="card-os26" onclick="selectOS('os26')" class="os-card p-5 rounded-2xl cursor-pointer transition flex flex-col justify-between group selected">
                     <div>
                         <div class="flex items-center justify-between mb-3">
@@ -301,7 +300,6 @@
                     </div>
                 </div>
 
-                <!-- Option 2: Windows 11 OS 27 -->
                 <div id="card-os27" onclick="selectOS('os27')" class="os-card p-5 rounded-2xl cursor-pointer transition flex flex-col justify-between group">
                     <div>
                         <div class="flex items-center justify-between mb-3">
@@ -341,10 +339,10 @@
 
     <div id="boot-screen" class="fixed inset-0 bg-black z-[9990] hidden flex flex-col items-center justify-center space-y-12 transition-all">
         <div class="grid grid-cols-2 gap-1.5 w-24 h-24 transform -skew-x-6">
-            <div id="boot-logo-1" class="bg-[#00adef]"></div>
-            <div id="boot-logo-2" class="bg-[#00adef]"></div>
-            <div id="boot-logo-3" class="bg-[#00adef]"></div>
-            <div id="boot-logo-4" class="bg-[#00adef]"></div>
+            <div class="bg-[#00adef]"></div>
+            <div class="bg-[#00adef]"></div>
+            <div class="bg-[#00adef]"></div>
+            <div class="bg-[#00adef]"></div>
         </div>
         <div class="win-spinner">
             <div></div><div></div><div></div><div></div><div></div>
@@ -368,19 +366,18 @@
     <div id="desktop" class="relative w-screen h-screen bg-black overflow-hidden flex flex-col justify-between win10-desktop">
         <div id="desktop-icons" class="p-3 grid grid-flow-col auto-cols-max grid-rows-6 gap-4 z-10 transition-opacity duration-300"></div>
 
-        <!-- Notification Toast Popup -->
         <div id="welcome-popup" class="fixed bottom-14 right-6 liquid-glass rounded-2xl p-4 w-80 md:w-96 z-[9500] hidden transform translate-y-10 opacity-0 transition-all duration-300">
             <div class="flex justify-between items-start mb-2 relative z-10">
                 <div class="flex items-center gap-2">
-                    <div id="popup-avatar" class="w-8 h-8 rounded-full bg-blue-500/80 backdrop-blur-md flex items-center justify-center font-bold text-white text-xs shadow-lg">L</div>
+                    <div class="w-8 h-8 rounded-full bg-blue-500/80 backdrop-blur-md flex items-center justify-center font-bold text-white text-xs shadow-lg">L</div>
                     <div>
-                        <h4 id="popup-title" class="font-bold text-sm text-white drop-shadow">Chào mừng đến với LongOS 26!</h4>
-                        <span class="text-[10px] text-gray-300">Vừa xong • Windows 10 Web Edition</span>
+                        <h4 id="popup-title" class="font-bold text-sm text-white drop-shadow">Chào mừng đến với LongOS!</h4>
+                        <span class="text-[10px] text-gray-300">Vừa xong • Web Edition</span>
                     </div>
                 </div>
                 <button onclick="closeWelcomePopup()" class="text-gray-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p id="popup-desc" class="text-xs text-gray-200 mb-3 relative z-10">Hệ điều hành web đã sẵn sàng với giao diện Liquid Glass lỏng trong suốt cực đỉnh!</p>
+            <p id="popup-desc" class="text-xs text-gray-200 mb-3 relative z-10">Hệ điều hành web đã sẵn sàng với giao diện mượt mà và trực quan!</p>
             <div class="flex gap-2 relative z-10">
                 <button onclick="openApp('guide'); closeWelcomePopup();" class="flex-1 py-1.5 liquid-glass-button rounded-lg text-xs font-semibold text-white transition">
                     <i class="fa-solid fa-book-open mr-1"></i> Hướng dẫn sử dụng
@@ -389,7 +386,6 @@
             </div>
         </div>
 
-        <!-- Context Menu -->
         <div id="context-menu" class="fixed hidden liquid-glass text-white border border-white/20 rounded-xl shadow-2xl py-1.5 w-52 text-xs z-[8000]">
             <div class="relative group">
                 <button class="w-full text-left px-4 py-2 hover:bg-white/10 flex items-center justify-between">
@@ -423,7 +419,6 @@
 
         <div id="windows-container" class="absolute inset-0 pb-12 pointer-events-none z-20"></div>
 
-        <!-- Task View Overlay -->
         <div id="task-view-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[7000] hidden p-8 flex flex-col">
             <div class="flex justify-between items-center text-white mb-6">
                 <h2 class="text-2xl font-light"><i class="fa-solid fa-table-cells-large mr-3"></i>Task View - Active Windows</h2>
@@ -432,13 +427,12 @@
             <div id="task-view-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-y-auto p-2"></div>
         </div>
 
-        <!-- Start Menu -->
         <div id="start-menu" class="fixed bottom-14 left-2 w-80 md:w-96 h-[480px] liquid-glass rounded-2xl shadow-2xl z-[8000] hidden flex flex-col justify-between transition-all">
             <div class="p-4 border-b border-white/20 flex items-center gap-3 relative z-10">
-                <div id="start-menu-avatar" class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-lg">L</div>
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-bold text-lg shadow-lg">L</div>
                 <div>
-                    <div id="start-menu-username" class="font-semibold text-sm">LongOS Administrator</div>
-                    <div id="start-menu-subtitle" class="text-xs text-blue-200">Windows 10 Liquid Glass Edition</div>
+                    <div class="font-semibold text-sm">LongOS Administrator</div>
+                    <div id="start-menu-subtitle" class="text-xs text-blue-200">Windows Liquid Glass Edition</div>
                 </div>
             </div>
 
@@ -480,10 +474,8 @@
             </div>
         </div>
 
-        <!-- Taskbar: Clock and Tray Icons fixed on the right -->
         <div id="taskbar" class="w-full h-12 liquid-glass border-t border-white/20 flex items-center justify-between px-3 z-[8500] relative">
             <div id="taskbar-inner-container" class="flex items-center h-full gap-1.5 w-full justify-between">
-                <!-- Left Taskbar Group -->
                 <div id="taskbar-left-group" class="flex items-center h-full gap-1.5">
                     <button id="start-btn" onclick="toggleStartMenu(event)" class="h-9 px-3.5 rounded-xl liquid-glass-button flex items-center justify-center transition">
                         <i id="start-btn-icon" class="fa-brands fa-windows text-blue-300 text-lg pointer-events-none drop-shadow"></i>
@@ -504,8 +496,10 @@
                     <div id="taskbar-apps" class="flex items-center h-full gap-1"></div>
                 </div>
 
-                <!-- Right Tray Icons & Clock (Strictly on the right) -->
                 <div class="flex items-center h-full text-xs gap-3 pl-3 pr-2 text-gray-200 flex-shrink-0 ml-auto">
+                    <button onclick="toggleDesktopFullscreen()" title="Toàn màn hình (Full Screen)" class="hover:text-white px-1.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg flex items-center gap-1.5 transition text-cyan-300 font-semibold">
+                        <i class="fa-solid fa-expand text-xs"></i> <span class="hidden md:inline">Full Screen</span>
+                    </button>
                     <button onclick="playNotificationSound()" title="Test Notification Sound" class="hover:text-white px-1 hidden sm:inline-block"><i class="fa-solid fa-bell text-blue-300"></i></button>
                     <i class="fa-solid fa-volume-high hidden sm:inline-block"></i>
                     <i class="fa-solid fa-wifi text-xs"></i>
@@ -619,7 +613,7 @@
                         <i class="fa-solid fa-mobile-screen-button"></i> Tự động chuyển đổi Desktop & Mobile Mode
                     </h3>
                     <p class="text-gray-300 text-[11px] leading-relaxed">
-                        LongOS hiện tại tự động nhận diện thiết bị của bạn. Trên màn hình máy tính (Desktop), giao diện hiển thị cửa sổ đa nhiệm tự do, kéo thả icon thoải mái. Trên điện thoại (Mobile Mode), website tự động chuyển sang chế độ mobile tối ưu hóa trải nghiệm cảm ứng, các ứng dụng mở toàn màn hình.
+                        LongOS tự động nhận diện thiết bị của bạn. Trên máy tính, bạn có thể bấm nút <strong>Full Screen</strong> trên thanh taskbar để bật toàn màn hình trực tiếp. Trên điện thoại, giao diện tự động tối ưu hóa hiển thị cảm ứng và các ứng dụng mở toàn màn hình.
                     </p>
                 </div>
             </div>
@@ -675,7 +669,7 @@
                     <div class="z-20 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[22px] border-t-red-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] -mb-2.5"></div>
                     <canvas id="wheel-canvas" width="360" height="360" class="w-[260px] h-[260px] md:w-[300px] md:h-[300px] max-w-full drop-shadow-2xl"></canvas>
                 </div>
-                <button id="spin-btn" onclick="spinWheel()" class="mt-2 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-black font-black text-sm rounded-full shadow-lg transition transform active:scale-95">
+                <button id="spin-btn" onclick="spinWheel()" class="mt-2 px-8 py-2.5 bg-gradient-to-r from-amber-500 to-red-500 hover:from-amber-400 hover:to-red-400 text-black font-black text-sm rounded-full shadow-lg transition transform active:scale-95 cursor-pointer">
                     QUAY NGAY!
                 </button>
             </div>
@@ -737,7 +731,7 @@ Mất lượt
             <div class="flex items-center gap-3 border-b border-white/10 pb-3">
                 <i class="fa-brands fa-windows text-4xl text-blue-500"></i>
                 <div>
-                    <h2 id="sysinfo-title" class="text-base font-bold">LongOS 10 Web Edition</h2>
+                    <h2 id="sysinfo-title" class="text-base font-bold">LongOS Web Edition</h2>
                     <p id="sysinfo-build" class="text-gray-400">Version 22H2 (OS Build 19045.3803)</p>
                 </div>
             </div>
@@ -846,7 +840,7 @@ Mất lượt
             sysinfo: { title: 'Windows Info', icon: 'fa-circle-info text-cyan-400', w: 480, h: 360, isPinned: true }
         };
 
-        let selectedOSVersion = 'os26'; // 'os26' or 'os27'
+        let selectedOSVersion = 'os26';
         let bootCountdownTimer = 5;
         let bootCountdownInterval = null;
         let isMobileMode = false;
@@ -857,7 +851,6 @@ Mất lượt
         let currentIconSize = 'medium';
         let iconCustomPositions = {};
 
-        // Detect screen width / device type on load & resize
         function checkDeviceMode() {
             const isSmallScreen = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             isMobileMode = isSmallScreen;
@@ -879,7 +872,18 @@ Mất lượt
             renderDesktopIcons();
         });
 
-        // Audio Context setup
+        function toggleDesktopFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Fullscreen error:", err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
         let audioCtx = null;
         function getAudioContext() {
             if (!audioCtx) {
@@ -1318,9 +1322,129 @@ Mất lượt
             renderTaskbar();
 
             if (key === 'mediaplayer') initMediaPlayer();
-            if (key === 'wheel') setTimeout(drawWheel, 100);
+            if (key === 'wheel') setTimeout(initLuckyWheel, 100);
             if (key === 'sysinfo') loadSysInfo();
             if (key === 'hwtest') initHardwareTester();
+        }
+
+        let wheelCurrentAngle = 0;
+        let isWheelSpinning = false;
+
+        function initLuckyWheel() {
+            wheelCurrentAngle = 0;
+            isWheelSpinning = false;
+            drawWheel();
+        }
+
+        function getWheelItems() {
+            const textarea = document.getElementById('wheel-input');
+            if (!textarea) return ['Thưởng 100k', 'May mắn', 'Chơi lại', 'Sticker', 'Mất lượt', 'Đổi chỗ'];
+            return textarea.value.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+        }
+
+        function drawWheel(angle = 0) {
+            const canvas = document.getElementById('wheel-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const items = getWheelItems();
+            const numSegments = items.length;
+            if (numSegments === 0) return;
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 10;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#f43f5e'];
+
+            const arcSize = (2 * Math.PI) / numSegments;
+
+            for (let i = 0; i < numSegments; i++) {
+                const startAngle = angle + i * arcSize;
+                const endAngle = startAngle + arcSize;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#1e1e1e';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + arcSize / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 13px Segoe UI, sans-serif';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 4;
+                ctx.fillText(items[i], radius - 20, 5);
+                ctx.restore();
+            }
+
+            // Draw center cap
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 24, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#333333';
+            ctx.stroke();
+        }
+
+        function spinWheel() {
+            if (isWheelSpinning) return;
+            const items = getWheelItems();
+            if (items.length === 0) return;
+
+            isWheelSpinning = true;
+            const spinBtn = document.getElementById('spin-btn');
+            const resultEl = document.getElementById('wheel-result');
+            if (spinBtn) spinBtn.disabled = true;
+            if (resultEl) resultEl.innerHTML = `<span class="text-amber-400 animate-pulse text-xs">Đang quay...</span>`;
+
+            const minSpins = 5;
+            const extraSpins = Math.random() * 5;
+            const totalRotations = (minSpins + extraSpins) * 2 * Math.PI;
+            const duration = 4000;
+            const startTime = performance.now();
+            const startAngle = wheelCurrentAngle;
+
+            function animateSpin(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Ease out cubic
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                wheelCurrentAngle = startAngle + totalRotations * easeProgress;
+
+                drawWheel(wheelCurrentAngle);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    isWheelSpinning = false;
+                    if (spinBtn) spinBtn.disabled = false;
+                    playSound('win');
+
+                    // Calculate winner
+                    const arcSize = (2 * Math.PI) / items.length;
+                    const normalizedAngle = (2 * Math.PI - (wheelCurrentAngle % (2 * Math.PI)) + Math.PI / 2) % (2 * Math.PI);
+                    const winningIndex = Math.floor(normalizedAngle / arcSize) % items.length;
+                    const winnerText = items[winningIndex];
+
+                    if (resultEl) {
+                        resultEl.innerHTML = `<span class="text-emerald-400 text-sm font-black animate-bounce">${winnerText}</span>`;
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
         }
 
         let activeMediaMode = 'none';
